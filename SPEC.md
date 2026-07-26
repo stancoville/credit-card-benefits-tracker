@@ -49,7 +49,18 @@ preview build.
 ## 3. Data model
 
 Money is stored as **integer cents**. Never floats. Dates that represent benefit
-periods are `date`, never `timestamptz` (see §5.4).
+periods are `date`, never `timestamptz` (see §5.4). Every `date` column is typed
+`PlainDate` in application code via Drizzle's `mode: 'string'`, so a calendar date is
+never handled as an instant (see §5.1, amendment 1).
+
+Two things exist in `/db/schema.ts` that the column lists below don't name:
+
+- **`created_at timestamptz` on the six ledger tables.** A row's creation time is a true
+  instant, not a calendar day, so `timestamptz` is correct here and only here.
+- **Check constraints for the invariants stated in prose.** A credit requires a
+  `max_value` (§3.1 + hard rule 7), `reset_interval >= 1` (§5.2), effective and open/close
+  windows are ordered, and money is non-negative. These enforce existing rules rather
+  than adding new ones.
 
 ### 3.1 Catalog tables (seeded from repo)
 
@@ -179,24 +190,74 @@ This is the core of the app. Build and test it before any UI.
 
 ### 5.1 Contract
 
+_Amended 2026-07-26, when the engine was built. The original draft typed every boundary
+as `Date` and passed `tz` as the fourth argument; three changes were needed to make it
+implementable. Each is noted below._
+
 ```ts
+/** Branded 'YYYY-MM-DD'. See /lib/date/plain-date.ts. */
+type PlainDate = string
+
 function periodFor(
-  benefit: Benefit,
-  cardOpenedOn: Date,
-  asOf: Date,
-  tz: string
-): { periodStart: Date; periodEnd: Date } | null
+  benefit: PeriodBenefit,
+  cardOpenedOn: PlainDate,
+  asOf: PlainDate,
+  context: PeriodContext
+): BenefitPeriod | null
 
 function periodsInRange(
-  benefit: Benefit,
-  cardOpenedOn: Date,
-  from: Date,
-  to: Date,
-  tz: string
-): Array<{ periodStart: Date; periodEnd: Date }>
+  benefit: PeriodBenefit,
+  cardOpenedOn: PlainDate,
+  from: PlainDate,
+  to: PlainDate,
+  context: PeriodContext
+): BenefitPeriod[]
+
+interface PeriodBenefit {
+  resetType: ResetType
+  resetInterval: number
+  resetAnchor: ResetAnchor
+  effectiveFrom: PlainDate
+  effectiveTo: PlainDate | null
+}
+
+interface PeriodContext {
+  tz: string                    // household timezone; accepted, not consumed — see §5.4
+  cardClosedOn?: PlainDate      // user_cards.closed_on
+  oneTimeRedeemed?: boolean     // resolved by the caller from redemptions
+}
+
+interface BenefitPeriod {
+  periodStart: PlainDate        // inclusive; the redemptions/enrollments key
+  periodEnd: PlainDate | null   // inclusive; null only for open-ended one_time
+  isPartial: boolean            // informational; full max_value counts regardless
+}
 ```
 
-Pure functions. No DB access, no `new Date()` inside — `asOf` is always injected.
+Pure functions. No DB access, no `new Date()` inside — `asOf` is always injected. A lint
+rule enforces this for `/lib/periods` and `/lib/ledger`.
+
+**Amendment 1 — dates are `PlainDate`, not `Date`.** A JS `Date` is an instant, not a
+calendar date: `new Date('2026-07-31')` is UTC midnight and renders as Jul 30 in
+`America/New_York`. Typing boundaries as `Date` would guarantee the bug §5.4 exists to
+prevent. A branded `YYYY-MM-DD` string cannot drift, is what Drizzle's `date` column
+returns in `mode: 'string'` (so no conversion layer exists to get wrong), sorts
+chronologically under both SQL `ORDER BY` and JS `.sort()`, and crosses the Server
+Component → Server Action boundary without a serializer.
+
+**Amendment 2 — a fourth `context` argument.** Two §5.3 cases are unreachable from the
+original signature: an already-redeemed `one_time` benefit and a card closed mid-year.
+Neither is derivable from a benefit definition plus an open date. The caller resolves
+both and passes them in, so the functions stay pure and both cases stay testable inside
+the engine rather than leaking into the ledger.
+
+**Amendment 3 — `periodEnd` is nullable.** A `one_time` offer with no `effective_to` has
+no deadline, so its period never closes and can never be forfeited. Every other reset
+type always returns a non-null `periodEnd`.
+
+`PeriodBenefit` is the subset of a benefit definition that determines periods — it is
+structurally satisfied by a `benefits` row, so a DB row can be passed directly, but the
+engine can also be called with a catalog JSON entry or a test fixture.
 
 ### 5.2 Reset types
 
@@ -213,16 +274,45 @@ Pure functions. No DB access, no `new Date()` inside — `asOf` is always inject
 `reset_interval` multiplies the base period: `monthly` with interval 3 is every three
 months from the anchor.
 
+Base period lengths, in months: `monthly` 1, `quarterly` 3, `semiannual` 6, `annual` 12,
+`rolling` 12. **`rolling` counts years** — its interval is a year count, so Global Entry
+at interval 4 is a 48-month period. It shares its arithmetic with `annual`; the two
+differ in catalog intent, not behavior. `one_time` has no length and takes a separate
+path.
+
+**Anchoring.** `calendar` aligns the sequence to the Jan 1 epoch, so every household sees
+identical boundaries for the same benefit — that is what makes a quarter *the issuer's*
+quarter. Intervals that divide 12 therefore land where issuers publish them: quarters on
+Jan/Apr/Jul/Oct, semiannual on Jan–Jun / Jul–Dec, annual dying Dec 31.
+
+`card_open` measures every boundary from the original open date rather than from the
+previous boundary, which is what stops a card opened on the 31st from drifting: Jan 31 →
+Feb 28 → Mar 31, not Mar 28.
+
 ### 5.3 Edge cases that need explicit tests
 
 - Card opened Feb 29. Anniversary in non-leap years → Feb 28.
 - Card opened on the 31st. Monthly periods in 30-day months → last day of month.
 - Card opened mid-period. The first period is **short**, not skipped. `potential` for a
   partial first period still counts the full `max_value` — issuers don't prorate.
+  `periodStart` **clamps to the open date**: a card opened Jan 15 with a monthly calendar
+  credit yields Jan 15–31, keyed `2026-01-15`, not `2026-01-01`. The period is genuinely
+  short, so its key says so. Consequence to accept: correcting a typo'd `opened_on`
+  orphans that first period's redemption rows.
 - Benefit whose `effective_to` falls mid-card-year. Periods after that date don't
-  exist; periods before still count toward `forfeited`.
-- Card closed mid-year (`closed_on`). No periods after closure.
-- `one_time` benefit already redeemed → `periodFor` returns null.
+  exist; periods before still count toward `forfeited`. The period **containing**
+  `effective_to` is **truncated and counts its full `max_value`** — symmetric with the
+  short first period above, and a credit usable Aug 1–10 must not vanish from the
+  dashboard.
+- Card closed mid-year (`closed_on`). No periods after closure. The period containing
+  the closure date is truncated the same way. Where closure and `effective_to` both
+  apply, the earlier wins.
+- `one_time` benefit already redeemed → `periodFor` returns null, and `periodsInRange`
+  returns `[]`. Supplied via `context.oneTimeRedeemed` — see amendment 2 in §5.1.
+
+A period clamped on either side is flagged `isPartial`. That flag is informational only:
+the engine deliberately emits **no proration factor**, so there is nothing a caller could
+multiply an amount by.
 
 ### 5.4 Timezone
 
@@ -231,6 +321,15 @@ household tz, store as `date`, never `timestamptz`. "Expires Jul 31" must not sh
 because the server is in UTC.
 
 `asOf` is derived server-side from the household timezone, never from the browser.
+
+The conversion happens once, at the edge: `todayIn(tz)` in `/lib/date/now.ts` is the only
+place in the app that reads the clock. It returns a `PlainDate`, which is what every
+downstream function takes.
+
+This is why `context.tz` is accepted but never read. Once `asOf` is a calendar date
+already resolved in the household zone, there is no instant left to interpret and a
+timezone cannot change the answer — there is a test asserting exactly that. The field
+stays in the signature so callers cannot lose track of which zone their dates came from.
 
 ---
 
@@ -340,8 +439,8 @@ Venture X, the premium Hilton and Marriott cards, Bilt, and US Bank Altitude Res
 
 ## 9. Build order
 
-1. Drizzle schema + migrations
-2. Period engine + full test suite (§5.3). **Before any UI.**
+1. ~~Drizzle schema + migrations~~ — done 2026-07-26
+2. ~~Period engine + full test suite (§5.3)~~ — done 2026-07-26. **Before any UI.**
 3. Catalog JSON + Zod validator + idempotent `pnpm seed`
 4. Ledger math module + invariant tests (§4)
 5. Dashboard: hero, ledger bar, cliff strip, deadline groups

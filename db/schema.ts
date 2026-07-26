@@ -68,6 +68,16 @@ export const resetAnchorEnum = pgEnum('reset_anchor', ['calendar', 'card_open'])
 /** SPEC §3.1. */
 export const appliesToEnum = pgEnum('applies_to', ['primary', 'authorized_user', 'both'])
 
+/**
+ * How a redemption came to be recorded (SPEC §10).
+ *
+ * Email reminders are deferred from v1, but the column ships now: adding a column later
+ * is trivial, while recovering the *meaning* of rows written before it existed is not —
+ * they would be permanently ambiguous between "entered by hand" and "unknown". Postgres
+ * can gain further values with `ALTER TYPE ... ADD VALUE`, so the list stays minimal.
+ */
+export const redemptionSourceEnum = pgEnum('redemption_source', ['manual', 'reminder'])
+
 /* -------------------------------------------------------------------------- */
 /* 3.1 Catalog tables — seeded from the repo, identical for every deployment   */
 /* -------------------------------------------------------------------------- */
@@ -270,12 +280,21 @@ export const redemptions = pgTable(
     benefitId: uuid('benefit_id')
       .notNull()
       .references(() => benefits.id, { onDelete: 'cascade' }),
-    /** Computed by /lib/periods, stored as a key — not a period table (SPEC §3.2). */
+    /**
+     * Computed by /lib/periods, stored as a key — not a period table (SPEC §3.2).
+     *
+     * Always derived server-side from `occurred_on` via `periodFor`, never accepted from
+     * the client. That is what makes a backdated "true up" into an already-closed period
+     * safe: the date decides the period, so the key cannot disagree with it (SPEC §4).
+     */
     periodStart: calendarDate('period_start').notNull(),
     /** Integer cents. Partial usage is normal. */
     amount: integer('amount').notNull(),
+    /** When the credit was actually used. May fall in a closed period — see SPEC §4. */
     occurredOn: calendarDate('occurred_on').notNull(),
+    /** Free text, e.g. which hotel the credit was used at. */
     note: text('note'),
+    source: redemptionSourceEnum('source').notNull().default('manual'),
     createdAt: createdAt(),
   },
   (table) => [
@@ -370,6 +389,7 @@ export type Redemption = typeof redemptions.$inferSelect
 export type NewRedemption = typeof redemptions.$inferInsert
 
 export type BenefitType = (typeof benefitTypeEnum.enumValues)[number]
+export type RedemptionSource = (typeof redemptionSourceEnum.enumValues)[number]
 export type ResetType = (typeof resetTypeEnum.enumValues)[number]
 export type ResetAnchor = (typeof resetAnchorEnum.enumValues)[number]
 export type AppliesTo = (typeof appliesToEnum.enumValues)[number]

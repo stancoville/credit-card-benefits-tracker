@@ -7,9 +7,19 @@ Status: draft for build. Owner: Stan.
 A tracker for recurring credit card benefits (statement credits, monthly allowances,
 enrollment-gated offers) across a household's premium cards.
 
-The app's single job: **tell me what money is about to evaporate.**
+The app has two jobs, in this order:
 
-Everything else — fee math, history, card detail — is secondary to that.
+1. **Tell me what money is about to evaporate.** The deadline view is the default because
+   it is the only one that is time-critical.
+2. **Let me evaluate value captured — per card and overall, over a period.** Is this card
+   earning its fee? Did we capture more this year than last?
+
+The organizing goal behind both: **maximize the value actually captured.** That is why
+missed value stays visible in the totals rather than being quietly dropped (see §4).
+
+_Amended 2026-07-26: job 2 was previously folded into "everything else is secondary."
+It isn't secondary — it's the reason the four-way ledger split and the Cards lens exist.
+Job 1 still wins ties in the UI: the dashboard defaults to deadlines (§6)._
 
 ### Two data planes
 
@@ -147,10 +157,15 @@ redemptions
   benefit_id    uuid fk
   period_start  date                 -- computed, not stored as a period table
   amount        integer              -- cents; partial usage is normal
-  occurred_on   date
-  note          text null
+  occurred_on   date                 -- may fall in a closed period; see §4 true-ups
+  note          text null            -- free text, e.g. which hotel the credit was used at
+  source        enum('manual','reminder') not null default 'manual'
   index (user_card_id, benefit_id, period_start)
 ```
+
+`source` resolves the last item in §10. Email reminders are deferred from v1, but the
+column ships now: adding a column later is trivial, while recovering the *meaning* of rows
+written before it existed is not.
 
 **There is no `benefit_periods` table.** Periods are computed. This is the single most
 important structural decision in the app — see §5.
@@ -176,6 +191,71 @@ Invariant: `captured + forfeited + available == potential`. Assert this in tests
 
 `excluded` is reported separately and is never folded into `potential` — showing it
 openly is what keeps the number trustworthy.
+
+_The four rules below were decided 2026-07-26, before the ledger module was written._
+
+### 4.1 Which card year owns a period
+
+A period belongs to the card year containing its **`periodEnd`** — its deadline.
+
+This has to be stated because overlap is ambiguous and expensive to get wrong. A calendar
+`annual` credit runs Jan 1–Dec 31 while a card year runs, say, Mar 10–Mar 9, so two
+successive credit periods both overlap one card year. Summing by overlap would count that
+credit twice in `potential` and turn fee recovery into fiction. Assigning by `periodEnd`
+gives every period exactly one owner, which is what keeps the invariant true.
+
+It also matches how a person acts: the deadline is the thing you respond to.
+
+The same rule makes job 2 in §1 cheap — group the identical period set by the calendar
+year containing `periodEnd` instead of the card year, and you have a calendar-year view
+with no new engine work. Card year remains the default because it is what the annual fee
+buys.
+
+### 4.2 Enrollment is a lapse, not an exclusion
+
+An unenrolled credit **stays in `potential`**. While its period is open it sits in
+`available`; when the period closes still unenrolled, it becomes `forfeited`.
+
+`excluded` means "not applicable to us" — a deliberate, standing judgment. Not-enrolled is
+a **lapse**, and a lapse about to expire is the most actionable thing the app can show.
+Dropping it from `potential` would hide missed value, which is the opposite of the goal in
+§1.
+
+So enrollment changes a row's state and its action verb ("Enroll", louder styling per §6),
+never the arithmetic. For display, `available` splits into enrolled and not-enrolled — a
+partition of one term, so the invariant is untouched.
+
+### 4.3 True-ups: redemptions may be backdated into closed periods
+
+Because every redemption is entered by hand, people will reconcile late — recording a
+credit they used in June during August. This is supported, and it is why there is no
+"was it really available?" override on `forfeited`: the number stays derived from facts
+(a redemption with a date) rather than from an opinion about a number.
+
+The rules that make it safe:
+
+- **`occurred_on` decides the period.** `period_start` is always derived server-side by
+  passing `occurred_on` to `periodFor`, never accepted from the client, so the key cannot
+  disagree with the date.
+- **A date with no period is rejected**, with a message naming the reason: before the card
+  was opened, after it was closed, or outside the benefit's effective window. `periodFor`
+  returning null *is* the validation.
+- **Ledger figures are always recomputed, never cached.** A true-up moves value from
+  `forfeited` to `captured` in a period that already closed, so any stored total would
+  silently drift out of agreement. Same reasoning as having no `benefit_periods` table.
+- **A period's captured value cannot exceed its `max_value`.** Reject the excess and say
+  how much room is left; otherwise `available` goes negative and the invariant, while
+  still arithmetically true, becomes nonsense.
+
+Consequence to accept: historical figures are not final. A past month's `forfeited` can
+fall when someone reconciles. The UI must never present a past figure as settled.
+
+### 4.4 Timezone is per household, not per user
+
+`households.timezone` is the single source (resolving the first item in §10). This is a
+correctness constraint, not a preference: `period_start` is a shared key, so two members
+resolving `asOf` in different zones could compute different keys for the same period and
+write duplicate or unreachable redemption rows.
 
 Fee recovery (`captured − annual_fee`) is a drill-in figure, not a dashboard figure.
 
@@ -453,11 +533,20 @@ Venture X, the premium Hilton and Marriott cards, Bilt, and US Bank Altitude Res
 
 ## 10. Open decisions
 
-- [ ] Household timezone: single value, or per-user? (Recommend single.)
-- [ ] Partial redemption UI on mobile: long-press vs. an explicit amount field
-- [ ] Does `forfeited` need a "was it really available?" override for credits that were
-      technically live but practically unusable?
-- [ ] Auth provider when v2 lands (Auth.js + Google with an email allowlist is the
-      cheapest path that doesn't require schema changes)
-- [ ] Email reminders: deferred from v1, but decide now whether `redemptions` needs a
-      `source` column so reminder-driven claims are distinguishable later
+_All five resolved 2026-07-26._
+
+- [x] **Household timezone: single value.** Not a preference — `period_start` is a shared
+      key, so per-user zones could fork it. See §4.4.
+- [x] **Partial redemption UI on mobile: an explicit amount field**, as a secondary control
+      on the same sheet. Long-press has no visible affordance, no keyboard equivalent, and
+      no accessible name, which collides with the quality floor in §6. The one-gesture path
+      is preserved: the primary action commits the full remaining amount.
+- [x] **`forfeited` needs no override.** Backdated true-ups cover the real case, and they
+      keep the figure derived from a dated fact instead of an opinion. See §4.3.
+- [x] **No auth in v1, and none planned for this deployment.** Cards attach to `users` rows
+      so value can be attributed per person; that is the only reason `users` exists.
+      Access control is Vercel Deployment Protection on production (§2), not application
+      code. Self-hosters add their own. `users.email` is the only personal data in the
+      schema and lives in Neon only — never the repo (§1, hard rule 4).
+- [x] **`redemptions.source` ships now**, `enum('manual','reminder')` defaulting to
+      `manual`. Shipped in migration 0001. See §3.2.

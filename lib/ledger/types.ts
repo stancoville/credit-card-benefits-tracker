@@ -9,7 +9,7 @@
 
 import type { PlainDate } from '@/lib/date/plain-date'
 import type { BenefitPeriod, PeriodBenefit } from '@/lib/periods'
-import type { BenefitType } from '@/db/schema'
+import type { AppliesTo, BenefitType } from '@/db/schema'
 
 /** A benefit definition plus the fields ledger math needs. Satisfied by a `benefits` row. */
 export interface LedgerBenefit extends PeriodBenefit {
@@ -19,6 +19,11 @@ export interface LedgerBenefit extends PeriodBenefit {
   /** Integer cents. Null for perks. */
   readonly maxValue: number | null
   readonly requiresEnrollment: boolean
+  /**
+   * Who the benefit reaches (SPEC §3.1). A `primary` credit does not exist on an authorized
+   * user card, so counting it would inflate `potential` with money nobody can claim.
+   */
+  readonly appliesTo: AppliesTo
 }
 
 export interface LedgerRedemption {
@@ -39,6 +44,8 @@ export interface LedgerCard {
   readonly closedOn?: PlainDate | undefined
   /** Integer cents, with `annual_fee_override` already applied by the caller. */
   readonly annualFee: number
+  /** Decides which `applies_to` benefits reach this card. Defaults to false. */
+  readonly isAuthorizedUser?: boolean | undefined
 }
 
 export interface LedgerInput {

@@ -5,6 +5,7 @@
  */
 
 export {
+  benefitAppliesToCard,
   cardYearFor,
   ledgerForCardYear,
   ledgerInvariantHolds,

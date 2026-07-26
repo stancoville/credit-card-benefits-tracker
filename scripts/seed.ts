@@ -30,7 +30,10 @@ async function seed(): Promise<void> {
   // Catalog dates are timezone-free, so UTC is the right lens for "is verified_on in the
   // future" — this is not a household-scoped question (SPEC §5.4).
   const asOf = todayIn('UTC')
-  const catalog = loadCatalog({ asOf })
+  // CATALOG_DIR lets the demo environment reseed from a different tree (SPEC §2) without
+  // touching the real catalog.
+  const dir = process.env.CATALOG_DIR
+  const catalog = loadCatalog(dir ? { asOf, dir } : { asOf })
 
   if (catalog.products.length === 0) {
     console.log('Catalog has no products yet — nothing to seed.')

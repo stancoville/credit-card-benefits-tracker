@@ -192,7 +192,8 @@ Invariant: `captured + forfeited + available == potential`. Assert this in tests
 `excluded` is reported separately and is never folded into `potential` — showing it
 openly is what keeps the number trustworthy.
 
-_The four rules below were decided 2026-07-26, before the ledger module was written._
+_The rules below were decided 2026-07-26. §4.1–4.3 and §4.5 were settled before the ledger
+module was written; §4.4 was found afterwards, by running the app against a real database._
 
 ### 4.1 Which card year owns a period
 
@@ -250,7 +251,27 @@ The rules that make it safe:
 Consequence to accept: historical figures are not final. A past month's `forfeited` can
 fall when someone reconciles. The UI must never present a past figure as settled.
 
-### 4.4 Timezone is per household, not per user
+### 4.4 `applies_to` gates whether a benefit reaches a card
+
+A benefit only counts on a card whose holder it actually reaches (§3.1):
+
+| `applies_to` | Counts on a primary card | Counts on an authorized user card |
+|---|---|---|
+| `primary` | yes | **no** |
+| `authorized_user` | **no** | yes |
+| `both` | yes | yes |
+
+This was missed in the first ledger implementation and found by running the app against a
+real database: an authorized user card was accruing `primary`-only credits, inflating
+`potential` with money nobody could claim — which then forfeited and reported a loss that
+never existed.
+
+A benefit that does not reach a card is **not** the same as an excluded one. `excluded` is a
+household's judgment about a benefit it *has*; this benefit simply is not on the card, so it
+appears in neither figure. The drill-in still lists it, marked as not counted, because
+knowing the product carries it is useful.
+
+### 4.5 Timezone is per household, not per user
 
 `households.timezone` is the single source (resolving the first item in §10). This is a
 correctness constraint, not a preference: `period_start` is a shared key, so two members
@@ -527,9 +548,9 @@ Venture X, the premium Hilton and Marriott cards, Bilt, and US Bank Altitude Res
 3. Catalog validator + idempotent `pnpm seed` — done 2026-07-26. **Catalog JSON itself is
    still empty**: amounts must come from issuer terms, never from recall (§7).
 4. ~~Ledger math module + invariant tests (§4)~~ — done 2026-07-26
-5. Dashboard: hero, ledger bar, cliff strip, deadline groups
-6. Mark used / enroll flows
-7. Cards lens + drill-in
+5. ~~Dashboard: hero, ledger bar, cliff strip, deadline groups~~ — done 2026-07-26
+6. ~~Mark used / enroll flows~~ — done 2026-07-26
+7. ~~Cards lens + drill-in~~ — done 2026-07-26
 8. Demo mode, seed script, nightly reset cron
 9. Password gate, subdomains, DNS
 

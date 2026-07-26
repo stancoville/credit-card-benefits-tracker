@@ -26,6 +26,7 @@ const MONTHLY_CREDIT: LedgerBenefit = {
   benefitType: 'credit',
   maxValue: 1500,
   requiresEnrollment: false,
+  appliesTo: 'both',
   resetType: 'monthly',
   resetAnchor: 'calendar',
   resetInterval: 1,
@@ -479,6 +480,7 @@ describe('invariant over generated fixtures — captured + forfeited + available
 
   const RESET_TYPES = ['monthly', 'quarterly', 'semiannual', 'annual', 'rolling', 'one_time'] as const
   const ANCHORS = ['calendar', 'card_open'] as const
+  const APPLIES_TO = ['primary', 'authorized_user', 'both'] as const
   const OPEN_DATES = ['2024-02-29', '2024-01-31', '2023-03-10', '2025-06-15', '2024-12-31'] as const
   const AS_OF = ['2025-01-01', '2026-07-26', '2026-02-28', '2026-12-31', '2027-03-09'] as const
 
@@ -497,6 +499,7 @@ describe('invariant over generated fixtures — captured + forfeited + available
         benefitType: random() < 0.2 ? 'perk' : 'credit',
         maxValue: Math.floor(random() * 40000),
         requiresEnrollment: random() < 0.4,
+        appliesTo: pick(APPLIES_TO),
         resetType: pick(RESET_TYPES),
         resetInterval: 1 + Math.floor(random() * 4),
         resetAnchor: pick(ANCHORS),
@@ -528,6 +531,7 @@ describe('invariant over generated fixtures — captured + forfeited + available
         openedOn,
         closedOn: random() < 0.2 ? d(pick(['2026-06-20', '2026-11-05', '2027-01-15'])) : undefined,
         annualFee: Math.floor(random() * 100000),
+        isAuthorizedUser: random() < 0.3,
       },
       benefits,
       redemptions,
@@ -604,5 +608,56 @@ describe('invariant over generated fixtures — captured + forfeited + available
       )
       expect(ledger.rows.some((row) => perkIds.has(row.benefitId))).toBe(false)
     }
+  })
+})
+
+describe('§3.1 applies_to — a benefit must actually reach the cardholder', () => {
+  const primaryOnly = benefit({ id: 'primary-only', appliesTo: 'primary', maxValue: 1500 })
+  const auOnly = benefit({ id: 'au-only', appliesTo: 'authorized_user', maxValue: 2500 })
+  const both = benefit({ id: 'both', appliesTo: 'both', maxValue: 3500 })
+
+  const primaryCard = { openedOn: d('2024-03-10'), annualFee: 69500, isAuthorizedUser: false }
+  const auCard = { openedOn: d('2024-03-10'), annualFee: 0, isAuthorizedUser: true }
+
+  it('keeps a primary-only credit off an authorized user card', () => {
+    const ledger = ledgerForCardYear(input({ card: auCard, benefits: [primaryOnly] }))!
+    expect(ledger.rows).toEqual([])
+    expect(ledger.totals.potential).toBe(0)
+  })
+
+  it('counts a primary-only credit on the primary cardholder card', () => {
+    const ledger = ledgerForCardYear(input({ card: primaryCard, benefits: [primaryOnly] }))!
+    expect(ledger.totals.potential).toBe(12 * 1500)
+  })
+
+  it('keeps an authorized-user-only credit off the primary card', () => {
+    const ledger = ledgerForCardYear(input({ card: primaryCard, benefits: [auOnly] }))!
+    expect(ledger.totals.potential).toBe(0)
+  })
+
+  it('counts an authorized-user-only credit on the authorized user card', () => {
+    const ledger = ledgerForCardYear(input({ card: auCard, benefits: [auOnly] }))!
+    expect(ledger.totals.potential).toBe(12 * 2500)
+  })
+
+  it('counts a both credit on either card', () => {
+    const onPrimary = ledgerForCardYear(input({ card: primaryCard, benefits: [both] }))!
+    const onAu = ledgerForCardYear(input({ card: auCard, benefits: [both] }))!
+    expect(onPrimary.totals.potential).toBe(12 * 3500)
+    expect(onAu.totals.potential).toBe(12 * 3500)
+  })
+
+  it('treats a card with no flag as the primary cardholder', () => {
+    const ledger = ledgerForCardYear(
+      input({ card: { openedOn: d('2024-03-10'), annualFee: 0 }, benefits: [primaryOnly] }),
+    )!
+    expect(ledger.totals.potential).toBe(12 * 1500)
+  })
+
+  it('does not report an unreachable benefit as excluded either', () => {
+    // It is not "not applicable to us" — it simply is not on this card.
+    const ledger = ledgerForCardYear(input({ card: auCard, benefits: [primaryOnly] }))!
+    expect(ledger.excluded).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
   })
 })

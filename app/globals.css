@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens are fixed by SPEC §6. Don't introduce new colours or typefaces.
+ *
+ *   amber  = expiring     teal = captured     maroon = forfeited
+ *
+ * Those three carry meaning, so they are never reused for decoration.
+ */
+@theme {
+  --color-ink: #0e1116;
+  --color-paper: #f2f4f3;
+  --color-amber: #e8a33d;
+  --color-teal: #2e7d6b;
+  --color-maroon: #7a4a4a;
+  --color-muted: #8b93a1;
+
+  --color-hairline: #dfe3e1;
+  --color-surface: #ffffff;
+
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, 'SFMono-Regular', monospace;
+}
+
+html {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * SPEC §6: IBM Plex Mono with tabular figures for every dollar amount and date, so columns
+ * of numbers line up and a changing figure doesn't shift its neighbours.
+ */
+.figure {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.01em;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-stretch: 95%;
+  letter-spacing: -0.02em;
+}
+
+/* Quality floor: focus must always be visible. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.on-ink :focus-visible {
+  outline-color: var(--color-paper);
+}
+
+/*
+ * The one orchestrated motion moment in the app: the cliff strip drawing on load
+ * (SPEC §6). Nothing else animates.
+ */
+@keyframes cliff-rise {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.cliff-bar {
+  transform-origin: bottom;
+  animation: cliff-rise 620ms cubic-bezier(0.16, 0.84, 0.44, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cliff-bar {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

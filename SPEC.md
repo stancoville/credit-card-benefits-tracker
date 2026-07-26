@@ -260,7 +260,10 @@ write duplicate or unreachable redemption rows.
 Fee recovery (`captured − annual_fee`) is a drill-in figure, not a dashboard figure.
 
 **Capture pace** = `captured / potential` compared against `elapsed / 365` of the card
-year. Ahead → teal, behind → amber.
+year. Ahead → teal, behind → amber. Implemented against the card year's *true* length
+rather than a literal 365, so a leap year does not report 100.3% elapsed and a card year
+truncated by closure paces against its actual span. `potential` of 0 yields `unknown`
+rather than a division by zero.
 
 ---
 
@@ -521,8 +524,9 @@ Venture X, the premium Hilton and Marriott cards, Bilt, and US Bank Altitude Res
 
 1. ~~Drizzle schema + migrations~~ — done 2026-07-26
 2. ~~Period engine + full test suite (§5.3)~~ — done 2026-07-26. **Before any UI.**
-3. Catalog JSON + Zod validator + idempotent `pnpm seed`
-4. Ledger math module + invariant tests (§4)
+3. Catalog validator + idempotent `pnpm seed` — done 2026-07-26. **Catalog JSON itself is
+   still empty**: amounts must come from issuer terms, never from recall (§7).
+4. ~~Ledger math module + invariant tests (§4)~~ — done 2026-07-26
 5. Dashboard: hero, ledger bar, cliff strip, deadline groups
 6. Mark used / enroll flows
 7. Cards lens + drill-in

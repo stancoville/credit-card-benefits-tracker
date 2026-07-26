@@ -1,5 +1,6 @@
 CREATE TYPE "public"."applies_to" AS ENUM('primary', 'authorized_user', 'both');--> statement-breakpoint
 CREATE TYPE "public"."benefit_type" AS ENUM('credit', 'perk');--> statement-breakpoint
+CREATE TYPE "public"."redemption_source" AS ENUM('manual', 'reminder');--> statement-breakpoint
 CREATE TYPE "public"."reset_anchor" AS ENUM('calendar', 'card_open');--> statement-breakpoint
 CREATE TYPE "public"."reset_type" AS ENUM('monthly', 'quarterly', 'semiannual', 'annual', 'rolling', 'one_time');--> statement-breakpoint
 CREATE TABLE "benefit_exclusions" (
@@ -78,6 +79,7 @@ CREATE TABLE "redemptions" (
 	"amount" integer NOT NULL,
 	"occurred_on" date NOT NULL,
 	"note" text,
+	"source" "redemption_source" DEFAULT 'manual' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "redemptions_amount_non_negative" CHECK ("redemptions"."amount" >= 0)
 );

@@ -1,5 +1,5 @@
 {
-  "id": "a2a8bdc1-b007-4ff7-95f4-94f30f2e4352",
+  "id": "ac8f6544-185e-413e-b889-64600458c5cf",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -614,6 +614,14 @@
           "primaryKey": false,
           "notNull": false
         },
+        "source": {
+          "name": "source",
+          "type": "redemption_source",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'manual'"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -953,6 +961,14 @@
       "values": [
         "credit",
         "perk"
+      ]
+    },
+    "public.redemption_source": {
+      "name": "redemption_source",
+      "schema": "public",
+      "values": [
+        "manual",
+        "reminder"
       ]
     },
     "public.reset_anchor": {

@@ -1,0 +1,55 @@
+{
+  "product": {
+    "slug": "example-premium-card",
+    "issuer": "example-issuer",
+    "name": "Example Premium Card",
+    "annual_fee_cents": 69500,
+    "effective_from": "2025-01-01"
+  },
+  "benefits": [
+    {
+      "slug": "example-monthly-credit",
+      "name": "Example monthly credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1500,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "reset_interval": 1,
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "Example merchant, rides and delivery",
+      "source_url": "https://example.com/terms/example-premium-card",
+      "verified_on": "2026-07-01",
+      "effective_from": "2025-01-01"
+    },
+    {
+      "slug": "example-cardmember-year-credit",
+      "name": "Example cardmember year credit",
+      "benefit_type": "credit",
+      "max_value_cents": 30000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "reset_interval": 1,
+      "requires_enrollment": true,
+      "applies_to": "both",
+      "notes": "Resets on the account anniversary, not Jan 1.",
+      "source_url": "https://example.com/terms/example-premium-card",
+      "verified_on": "2026-07-01",
+      "effective_from": "2025-01-01"
+    },
+    {
+      "slug": "example-perk",
+      "name": "Example lounge access perk",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "reset_interval": 1,
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "notes": "Perks never appear in a total. No max_value_cents.",
+      "source_url": "https://example.com/terms/example-premium-card",
+      "verified_on": "2026-07-01",
+      "effective_from": "2025-01-01"
+    }
+  ]
+}

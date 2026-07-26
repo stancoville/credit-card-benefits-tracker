@@ -17,10 +17,26 @@ Server Actions for mutations. No separate API layer in v1.
 /catalog             card product JSON — the public seed data
 /db/schema.ts        Drizzle schema
 /db/migrations       generated; never hand-edited
+/lib/catalog         catalog Zod schema, loader, and catalog→row mapping
+/lib/date            PlainDate (pure) and todayIn (the only clock reader)
 /lib/periods         period engine (pure, no I/O)
 /lib/ledger          potential/captured/forfeited/available math
 /scripts/seed.ts     idempotent catalog seeding
 ```
+
+## Migrations
+
+**Until the first production deploy, keep a single migration.** Someone cloning this repo
+should apply one file that matches `db/schema.ts` exactly, not replay a history no database
+ever lived through. So schema changes are made by regenerating, not incrementing:
+
+```
+rm -rf db/migrations && mkdir db/migrations && pnpm db:generate
+```
+
+Once a migration has been applied to the production Neon branch this reverses: squashing
+would break the `drizzle-kit migrate` journal, and increments become the only safe option.
+Delete this section when that day comes.
 
 ## Hard rules
 

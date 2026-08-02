@@ -8,7 +8,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['lib/**/*.test.ts', 'scripts/**/*.test.ts'],
+    include: ['lib/**/*.test.ts', 'scripts/**/*.test.ts', 'db/**/*.test.ts'],
     environment: 'node',
     // Tests must never depend on the real clock (CLAUDE.md testing rules).
     // `asOf` is injected everywhere, so there is deliberately no fake-timer setup.

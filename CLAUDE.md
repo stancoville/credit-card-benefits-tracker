@@ -15,7 +15,8 @@ Server Actions for mutations. No separate API layer in v1.
 ```
 /app                 routes
 /catalog             card product JSON — the public seed data
-/db/schema.ts        Drizzle schema
+/db/schema.ts        Drizzle schema — the source of truth
+/db/schema.sql       generated full DDL snapshot; regenerate with `pnpm db:schema`
 /db/migrations       generated; never hand-edited
 /lib/catalog         catalog Zod schema, loader, and catalog→row mapping
 /lib/date            PlainDate (pure) and todayIn (the only clock reader)
@@ -40,6 +41,18 @@ pnpm db:migrate      # apply, using the DIRECT (non-pooled) Neon connection stri
 
 `db/schema.ts` stays the source of truth; the migrations are how a database catches up to it.
 `pnpm db:push` is fine for a scratch database, never for production.
+
+**`db/schema.sql` is generated and must never be stale.** It is the full current schema in
+one file, so someone can read or apply it without replaying a migration history. Regenerate
+it in the same change as any schema edit:
+
+```
+pnpm db:schema       # regenerate db/schema.sql from db/schema.ts
+pnpm db:schema:check # fails if it has drifted — also runs inside pnpm test
+```
+
+Never hand-edit `db/schema.sql`. A generated file nobody regenerates is worse than no file:
+it looks authoritative while describing a schema that no longer exists.
 
 ## Hard rules
 
@@ -99,6 +112,7 @@ pnpm lint
 
 - `pnpm test` and `pnpm lint` pass
 - No new `any`
-- Schema changes have a generated migration committed alongside
+- Schema changes have a generated migration **and** a regenerated `db/schema.sql`
+  committed alongside
 - Catalog changes pass Zod validation and carry `verified_on`
 - Nothing user-identifying added to the repo

@@ -15,7 +15,9 @@
     "lint": "eslint . && tsc --noEmit",
     "db:push": "drizzle-kit push",
     "review": "tsx scripts/review.ts",
-    "check:links": "tsx scripts/check-links.ts"
+    "check:links": "tsx scripts/check-links.ts",
+    "db:schema": "tsx scripts/schema-sql.ts",
+    "db:schema:check": "tsx scripts/schema-sql.ts --check"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

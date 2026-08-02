@@ -36,6 +36,8 @@ The catalog is the open-source asset. No user data ever ships in the repo.
 - Points/miles valuation, award search, or transfer partners
 - Mobile app; responsive web only
 - Multi-tenant SaaS. Households exist in the schema, but auth is deferred.
+- Targeted offers (Amex Offers and equivalents) — see §11
+- Valuing lounge access or other avoided-cost perks — see §11
 
 ---
 
@@ -647,3 +649,57 @@ _All five resolved 2026-07-26._
       schema and lives in Neon only — never the repo (§1, hard rule 4).
 - [x] **`redemptions.source` ships now**, `enum('manual','reminder')` defaulting to
       `manual`. Shipped in migration 0001. See §3.2.
+
+---
+
+## 11. Deferred, with reasoning
+
+Not open questions — decisions to *not* build something yet, recorded so they are not
+re-litigated from scratch.
+
+### Targeted offers (Amex Offers and equivalents)
+
+**Deferred 2026-08-02.** These cannot be catalog data: the catalog is identical for every
+deployment (§1), while targeted offers differ per cardholder, differ between two people on
+the same product, and churn weekly. They are ledger-plane data.
+
+Three shapes were considered, cheapest first:
+
+1. **Ignore them.** Current behaviour. Each offer is small and they arrive constantly, so
+   hand-entering them is the "if it takes four taps the data rots" failure in §6.
+2. **Record only what was captured.** No forecasting — log the payout after it lands. Feeds
+   job 2 in §1 without any forecasting burden. Needs `redemptions.benefit_id` to become
+   nullable, or a sibling table for ad-hoc captures.
+3. **A `card_offers` table** scoped to `user_card_id`, with its own value and expiry,
+   flowing into the same period and ledger math as a one-time benefit. Feeds job 1 too, at
+   the cost of real ongoing data entry.
+
+Do (2) when missing offer value starts distorting capture totals. Do (3) only if offers are
+actually being lost to expiry, which is a different problem from the one this app solves.
+
+### Valuing lounge access and other avoided-cost perks
+
+**Deferred 2026-08-02.** The mechanism already exists — `repeatable` (§4.8) plus
+`value_mode: 'estimated'` (§4.6) compose, giving a per-use value with no allowance and no
+forfeiture. Verified against the ledger: three visits at $59/$59/$35 capture $153 with the
+invariant intact.
+
+What is deliberately not shipped is a **catalog default** for that value. A lounge visit is
+avoided cost, not captured cash: if you would never have bought a $59 day pass, you did not
+capture $59. Valuing visits at rack rate inflates fee recovery in exactly the way that makes
+a total stop being worth acting on.
+
+If it ships later, ship it with no default so the value is entered per visit and stays
+user-asserted rather than catalog-asserted.
+
+### A `reset_month` for December-uplift credits
+
+**Deferred 2026-08-02.** Five catalog entries — Amex Platinum Uber Cash, and the rideshare
+credits on United Quest, Club Infinite, Business and Club Business — pay more in December
+than in other months. Each is modelled as a base monthly credit plus a separate
+calendar-year row carrying the difference (§5.2), because the engine has no way to express a
+single-month period.
+
+The deadlines are correct; the flaw is that the December portion reads as available from
+January. A `reset_month` (or a month offset on `calendar` anchoring) would fix all five at
+once. Worth doing if monthly figures need to be exact.

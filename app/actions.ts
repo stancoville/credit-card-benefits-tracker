@@ -212,6 +212,42 @@ export async function reopenCard(
   return { ok: true, message: 'Card reopened.' }
 }
 
+/**
+ * Remove a card and everything recorded against it.
+ *
+ * Deliberately a delete rather than an edit for the open date: `opened_on` anchors every
+ * cardmember-year period *and* every period key written to `redemptions`, so changing it in
+ * place would orphan the rows filed under the old keys (SPEC §5.3, §4.3). Deleting cascades
+ * cleanly through redemptions, enrollments and exclusions; re-adding starts consistent.
+ */
+export async function deleteCard(
+  _previous: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const demo = guardDemo()
+  if (demo) return demo
+
+  const household = await getHousehold()
+  if (!household) return { ok: false, error: 'Set up your household first.' }
+
+  const cardId = text(formData, 'cardId')
+  const card = await getCard(household.id, cardId)
+  if (!card) return { ok: false, error: 'That card is not in this household.' }
+
+  const recorded = card.redemptions.length
+  await getDb().delete(userCards).where(eq(userCards.id, cardId))
+
+  revalidatePath('/')
+  revalidatePath('/cards')
+  return {
+    ok: true,
+    message:
+      recorded === 0
+        ? 'Card removed.'
+        : `Card removed, along with ${recorded} recorded ${recorded === 1 ? 'use' : 'uses'}.`,
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Mark used                                                                  */
 /* -------------------------------------------------------------------------- */

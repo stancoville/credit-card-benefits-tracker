@@ -12,7 +12,7 @@ import { benefitAppliesToCard, ledgerForCardYear } from '@/lib/ledger'
 import { isPeriodClosed, periodFor } from '@/lib/periods'
 import { Figure, Money, Panel, SectionHeading, formatDate } from '@/components/primitives'
 import { LedgerBar } from '@/components/dashboard-parts'
-import { CloseCard, ExclusionToggle } from './card-admin-forms'
+import { CloseCard, DeleteCard, ExclusionToggle } from './card-admin-forms'
 import { BenefitRowActions } from '@/components/benefit-row-actions'
 
 export const dynamic = 'force-dynamic'
@@ -263,6 +263,7 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
       <section>
         <SectionHeading>Card</SectionHeading>
         <CloseCard cardId={card.id} closedOn={closedOn ?? null} today={asOf} />
+        <DeleteCard cardId={card.id} label={card.nickname ?? card.product.name} />
       </section>
     </div>
   )

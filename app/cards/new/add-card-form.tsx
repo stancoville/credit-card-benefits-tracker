@@ -4,9 +4,13 @@
  * Add a card. The open date matters more than it looks: it anchors every cardmember-year
  * period and every period key (SPEC §5.2), so the copy asks for the account open date rather
  * than "start date".
+ *
+ * The card is chosen issuer-first. A flat list of every product is already unwieldy at 31
+ * and only grows, and people know their issuer before they know the exact product name — so
+ * narrowing by issuer first turns one long scan into two short ones.
  */
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { addCard, type ActionResult } from '@/app/actions'
@@ -27,6 +31,26 @@ export function AddCardForm({
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(addCard, null)
   const router = useRouter()
 
+  const issuers = useMemo(() => {
+    const seen = new Map<string, { slug: string; name: string; count: number }>()
+    for (const product of products) {
+      const existing = seen.get(product.issuerSlug)
+      if (existing) existing.count += 1
+      else seen.set(product.issuerSlug, { slug: product.issuerSlug, name: product.issuerName, count: 1 })
+    }
+    return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name))
+  }, [products])
+
+  // Skip the first step entirely when there is only one issuer to choose from.
+  const [issuerSlug, setIssuerSlug] = useState(issuers.length === 1 ? issuers[0]!.slug : '')
+  const [productId, setProductId] = useState('')
+
+  const forIssuer = useMemo(
+    () => products.filter((product) => product.issuerSlug === issuerSlug),
+    [products, issuerSlug],
+  )
+  const chosen = products.find((product) => product.id === productId)
+
   useEffect(() => {
     if (state?.ok) router.push('/cards')
   }, [state, router])
@@ -40,22 +64,51 @@ export function AddCardForm({
 
       <form action={action} className="border-hairline bg-surface space-y-5 border p-5">
         <label className="block text-sm">
+          <span className="font-medium">Issuer</span>
+          <select
+            value={issuerSlug}
+            onChange={(event) => {
+              setIssuerSlug(event.target.value)
+              setProductId('')
+            }}
+            className="border-hairline mt-1 w-full rounded border bg-white px-3 py-2"
+          >
+            <option value="">Choose an issuer</option>
+            {issuers.map((issuer) => (
+              <option key={issuer.slug} value={issuer.slug}>
+                {issuer.name} ({issuer.count})
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block text-sm">
           <span className="font-medium">Card</span>
           <select
             name="productId"
             required
-            defaultValue=""
-            className="border-hairline mt-1 w-full rounded border bg-white px-3 py-2"
+            value={productId}
+            disabled={issuerSlug === ''}
+            onChange={(event) => setProductId(event.target.value)}
+            className="border-hairline mt-1 w-full rounded border bg-white px-3 py-2 disabled:opacity-50"
           >
-            <option value="" disabled>
-              Choose a card
+            <option value="">
+              {issuerSlug === '' ? 'Pick an issuer first' : 'Choose a card'}
             </option>
-            {products.map((product) => (
+            {forIssuer.map((product) => (
               <option key={product.id} value={product.id}>
-                {product.issuerName} — {product.name} ({formatCents(product.annualFee)}/yr)
+                {product.name} — {formatCents(product.annualFee)}/yr
               </option>
             ))}
           </select>
+          {chosen ? (
+            <span className="text-muted mt-1 block text-xs">
+              {chosen.creditCount} tracked {chosen.creditCount === 1 ? 'credit' : 'credits'}
+              {chosen.perkCount > 0
+                ? ` · ${chosen.perkCount} ${chosen.perkCount === 1 ? 'perk' : 'perks'}`
+                : ''}
+            </span>
+          ) : null}
         </label>
 
         <label className="block text-sm">
@@ -106,9 +159,14 @@ export function AddCardForm({
           <input
             name="annualFeeOverride"
             inputMode="decimal"
-            placeholder="Leave blank to use the catalog fee"
+            placeholder={
+              chosen ? `Leave blank for ${formatCents(chosen.annualFee)}` : 'Leave blank to use the catalog fee'
+            }
             className="figure border-hairline mt-1 w-full rounded border px-3 py-2"
           />
+          <span className="text-muted mt-1 block text-xs">
+            Use this if you are grandfathered on an older fee.
+          </span>
         </label>
 
         <label className="flex items-start gap-2 text-sm">
@@ -120,7 +178,7 @@ export function AddCardForm({
           <span>
             This is an authorized user card
             <span className="text-muted block text-xs">
-              Rather than the primary account holder&rsquo;s own card.
+              Benefits that only reach the primary cardholder will not be counted on it.
             </span>
           </span>
         </label>

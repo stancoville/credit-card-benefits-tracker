@@ -7,10 +7,11 @@
  * function that changes.
  */
 
-import { asc, eq, inArray } from 'drizzle-orm'
+import { asc, eq, inArray, sql } from 'drizzle-orm'
 import { getDb } from '@/db/client'
 import {
   benefitExclusions,
+  benefits,
   cardProducts,
   enrollments,
   households,
@@ -39,8 +40,13 @@ export interface ProductOption {
   id: string
   slug: string
   name: string
+  /** Stable key for grouping — issuer display names can change, slugs don't. */
+  issuerSlug: string
   issuerName: string
   annualFee: number
+  /** Counts shown in the picker so a near-identical product can be told apart. */
+  creditCount: number
+  perkCount: number
 }
 
 /**
@@ -72,18 +78,26 @@ export async function getMembers(householdId: string): Promise<Member[]> {
     .orderBy(asc(users.createdAt))
 }
 
-/** Catalog products available to add. Empty until the catalog is seeded (SPEC §7). */
+/**
+ * Catalog products available to add, with the counts the picker shows. Empty until the
+ * catalog is seeded (SPEC §7).
+ */
 export async function getProductOptions(): Promise<ProductOption[]> {
   return getDb()
     .select({
       id: cardProducts.id,
       slug: cardProducts.slug,
       name: cardProducts.name,
+      issuerSlug: issuers.slug,
       issuerName: issuers.name,
       annualFee: cardProducts.annualFee,
+      creditCount: sql<number>`count(*) filter (where ${benefits.benefitType} = 'credit')::int`,
+      perkCount: sql<number>`count(*) filter (where ${benefits.benefitType} = 'perk')::int`,
     })
     .from(cardProducts)
     .innerJoin(issuers, eq(cardProducts.issuerId, issuers.id))
+    .leftJoin(benefits, eq(benefits.productId, cardProducts.id))
+    .groupBy(cardProducts.id, issuers.slug, issuers.name)
     .orderBy(asc(issuers.name), asc(cardProducts.name))
 }
 

@@ -1,0 +1,26 @@
+{
+  "product": {
+    "slug": "amex-green",
+    "issuer": "american-express",
+    "name": "American Express Green Card",
+    "annual_fee_cents": 15000,
+    "effective_from": "2023-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "clear-plus-credit",
+      "name": "CLEAR Plus credit",
+      "benefit_type": "credit",
+      "max_value_cents": 20900,
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "merchant_scope": "CLEAR Plus membership",
+      "notes": "Tracks the CLEAR Plus membership price, which rose from $199 to $209 during 2026. Re-verify before relying on the exact figure.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/green/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2023-01-01"
+    }
+  ]
+}

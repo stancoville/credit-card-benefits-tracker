@@ -1,0 +1,39 @@
+{
+  "product": {
+    "slug": "hilton-honors-surpass",
+    "issuer": "american-express",
+    "name": "Hilton Honors American Express Surpass Card",
+    "annual_fee_cents": 15000,
+    "effective_from": "2024-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "hilton-portfolio-credit",
+      "name": "Hilton portfolio credit",
+      "benefit_type": "credit",
+      "max_value_cents": 5000,
+      "reset_type": "quarterly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "Purchases made directly with a property in the Hilton portfolio",
+      "notes": "Up to $50 each quarter, for up to $200 a calendar year.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/hilton-honors-surpass/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "hilton-gold-status",
+      "name": "Hilton Honors Gold status",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "notes": "Complimentary Gold status while the card is open. No dollar value is tracked.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/hilton-honors-surpass/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-01-01"
+    }
+  ]
+}

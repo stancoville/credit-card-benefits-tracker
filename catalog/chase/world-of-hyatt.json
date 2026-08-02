@@ -1,0 +1,59 @@
+{
+  "product": {
+    "slug": "world-of-hyatt",
+    "issuer": "chase",
+    "name": "World of Hyatt Credit Card",
+    "annual_fee_cents": 9500,
+    "effective_from": "2020-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "anniversary-free-night-award",
+      "name": "Anniversary Free Night Award",
+      "benefit_type": "credit",
+      "max_value_cents": 24000,
+      "value_mode": "estimated",
+      "estimate_basis": "Award redeemable at Category 1-4 hotels, which top out at 15,000 World of Hyatt points, valued at 1.6 cents per point per The Points Guy July 2026 valuations. This is the category ceiling, not a typical redemption.",
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "merchant_scope": "One night at any Category 1-4 Hyatt hotel or resort",
+      "notes": "Issued each year after the cardmember anniversary.",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/world-of-hyatt-credit-card",
+      "verified_on": "2026-08-02",
+      "effective_from": "2020-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "spend-earned-free-night-award",
+      "name": "Free Night Award after $15,000 spend",
+      "benefit_type": "credit",
+      "max_value_cents": 24000,
+      "value_mode": "estimated",
+      "estimate_basis": "Same Category 1-4 ceiling as the anniversary award: 15,000 points at 1.6 cents per point per The Points Guy July 2026 valuations.",
+      "unlock_spend_cents": 1500000,
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "merchant_scope": "One night at any Category 1-4 Hyatt hotel or resort",
+      "notes": "A second award earned after $15,000 of calendar-year spend. Reported as unlockable (SPEC \u00a74.7).",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/world-of-hyatt-credit-card",
+      "verified_on": "2026-08-02",
+      "effective_from": "2020-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "hyatt-discoverist-status",
+      "name": "World of Hyatt Discoverist status",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "notes": "Complimentary elite status while the card is open, plus five qualifying night credits each year. No dollar value is tracked.",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/world-of-hyatt-credit-card",
+      "verified_on": "2026-08-02",
+      "effective_from": "2020-01-01"
+    }
+  ]
+}

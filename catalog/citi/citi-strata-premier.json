@@ -1,0 +1,26 @@
+{
+  "product": {
+    "slug": "citi-strata-premier",
+    "issuer": "citi",
+    "name": "Citi Strata Premier Card",
+    "annual_fee_cents": 9500,
+    "effective_from": "2024-07-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "hotel-credit",
+      "name": "Annual hotel credit",
+      "benefit_type": "credit",
+      "max_value_cents": 10000,
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "merchant_scope": "A single hotel stay of $500 or more, excluding taxes and fees, booked through cititravel.com",
+      "notes": "Once per calendar year, and only on a single qualifying stay of $500 or more \u2014 it cannot be split across bookings.",
+      "source_url": "https://www.citi.com/credit-cards/citi-strata-premier-credit-card",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-07-01"
+    }
+  ]
+}

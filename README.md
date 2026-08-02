@@ -80,8 +80,15 @@ See [`catalog/README.md`](./catalog/README.md) for the format, including how to 
 benefits with no dollar cap. Corrections and new cards are welcome as PRs — please include
 the issuer link you checked and run `pnpm test` first.
 
-Currently covered: Amex Platinum, Chase Sapphire Reserve, Chase Sapphire Preferred. The
-rest of the premium market is unfinished.
+**Currently covered: 31 products across six issuers** — American Express, Chase, Capital
+One, Citi, U.S. Bank and Bank of America. That spans the Amex consumer and business premium
+lineup, the Delta and Hilton co-brands, the Marriott line on both Amex and Chase, Chase
+Sapphire, the full United MileagePlus line, World of Hyatt, IHG, Capital One Venture X,
+Citi Strata Premier, U.S. Bank Altitude Reserve and BofA Premium Rewards Elite.
+
+Still missing, and welcome as PRs: Bilt, Chase Ink, Chase Aeroplan, Citi AAdvantage, Wells
+Fargo, the Amex Schwab and Morgan Stanley Platinum variants, the Delta and Hilton business
+cards, and Capital One Venture.
 
 ---
 

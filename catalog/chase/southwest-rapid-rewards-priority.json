@@ -1,0 +1,37 @@
+{
+  "product": {
+    "slug": "southwest-rapid-rewards-priority",
+    "issuer": "chase",
+    "name": "Southwest Rapid Rewards Priority Credit Card",
+    "annual_fee_cents": 22900,
+    "effective_from": "2026-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "anniversary-points",
+      "name": "Anniversary bonus points",
+      "benefit_type": "perk",
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "notes": "7,500 Rapid Rewards points on each cardmember anniversary. Recorded as a perk because it posts automatically and cannot be forfeited.",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/southwest/priority",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "upgraded-boardings",
+      "name": "Upgraded boardings",
+      "benefit_type": "perk",
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "notes": "The $75 Southwest travel credit and the four upgraded boardings were removed after 2025-12-31 when the annual fee rose to $229. This card now carries no recurring statement credits.",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/southwest/priority",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    }
+  ]
+}

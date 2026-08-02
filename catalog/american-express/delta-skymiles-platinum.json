@@ -1,0 +1,68 @@
+{
+  "product": {
+    "slug": "delta-skymiles-platinum",
+    "issuer": "american-express",
+    "name": "Delta SkyMiles Platinum American Express Card",
+    "annual_fee_cents": 35000,
+    "effective_from": "2026-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "resy-credit",
+      "name": "Resy dining credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1000,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "US Resy-affiliated restaurants",
+      "notes": "Paid in monthly instalments that do not roll over, up to $120 a calendar year.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/delta-skymiles-platinum-american-express-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "rideshare-credit",
+      "name": "Rideshare credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1000,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "US rideshare purchases with select providers",
+      "notes": "Up to $120 a calendar year, paid monthly and not rolled over.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/delta-skymiles-platinum-american-express-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "delta-stays-credit",
+      "name": "Delta Stays credit",
+      "benefit_type": "credit",
+      "max_value_cents": 15000,
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "merchant_scope": "Prepaid hotels and vacation rentals booked through Delta Stays on delta.com",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/delta-skymiles-platinum-american-express-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "first-checked-bag-free",
+      "name": "First checked bag free",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "notes": "No dollar value is tracked.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/delta-skymiles-platinum-american-express-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    }
+  ]
+}

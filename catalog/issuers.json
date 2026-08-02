@@ -1,5 +1,26 @@
 [
-  { "slug": "american-express", "name": "American Express" },
-  { "slug": "chase", "name": "Chase" },
-  { "slug": "capital-one", "name": "Capital One" }
+  {
+    "slug": "american-express",
+    "name": "American Express"
+  },
+  {
+    "slug": "chase",
+    "name": "Chase"
+  },
+  {
+    "slug": "capital-one",
+    "name": "Capital One"
+  },
+  {
+    "slug": "citi",
+    "name": "Citi"
+  },
+  {
+    "slug": "us-bank",
+    "name": "U.S. Bank"
+  },
+  {
+    "slug": "bank-of-america",
+    "name": "Bank of America"
+  }
 ]

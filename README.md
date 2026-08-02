@@ -1,0 +1,113 @@
+# Credit card benefits tracker
+
+A tracker for recurring credit card benefits — statement credits, monthly allowances,
+enrollment-gated offers — across a household's cards.
+
+It has one job above all others: **tell you what money is about to evaporate.** The
+December cliff, where a year's worth of airline and calendar-year credits all die on the
+same day, should be visible without reading.
+
+> **Benefit data is community-maintained, unofficial, and not guaranteed accurate.**
+> Card terms change constantly. Every amount in this repo carries a link to the issuer page
+> it came from and the date it was checked — verify against your own terms before relying on
+> anything here. Nothing in this project is financial advice.
+
+---
+
+## What it does
+
+- **Deadlines first.** Unclaimed value in periods closing within 30 days, the nearest
+  cliff, and every benefit grouped by the day it expires.
+- **A ledger that reconciles.** `captured + forfeited + available = potential`, asserted in
+  tests against a thousand generated scenarios. Value you excluded as "not applicable" is
+  reported separately and never quietly folded in.
+- **Periods are computed, never stored.** A benefit's periods come from its reset rules plus
+  the card's open date. There is no periods table to drift out of sync.
+- **Certificates are worth what you got.** A free night award used on a $500 room captured
+  $500, not a guess. Until you record one, a documented estimate stands in, and every total
+  says how much of it is estimated.
+- **Two people, one household.** Cards attach to people, so an authorized user card only
+  accrues the benefits that actually reach an authorized user.
+
+## What it deliberately doesn't do
+
+- No bank or transaction import. Every redemption is entered by hand.
+- No points valuation, award search, or transfer partners.
+- No auth in v1. Access control is your deployment's job — see below.
+
+---
+
+## Self-hosting
+
+Requires Node 20+, pnpm, and any Postgres. Neon is what the reference deployment uses, but
+the app speaks plain Postgres too.
+
+```bash
+pnpm install
+cp .env.example .env          # set DATABASE_URL
+pnpm db:migrate               # create the tables
+pnpm seed                     # load the card catalog
+pnpm dev
+```
+
+Open http://localhost:3000 and you'll be walked through creating your household.
+
+`pnpm db:push` pushes `db/schema.ts` straight to the database if you'd rather skip
+migrations entirely. `db/schema.ts` is the source of truth either way — the single
+migration in `db/migrations` is generated from it.
+
+### A note on access
+
+There is no login. The reference deployment sits behind Vercel Deployment Protection; if
+you host this yourself, put it behind something. The only personal data the schema holds is
+a display name and an email address per household member, and it lives in your database —
+never in this repo.
+
+---
+
+## The catalog
+
+Card products and their benefits live in [`/catalog`](./catalog) as JSON, seeded into the
+database by `pnpm seed`. This is the part worth contributing to, and the part worth being
+careful about.
+
+**Every amount needs a `source_url` from the issuer and a `verified_on` date.** Not from
+memory, not from a blog post — issuer terms. A wrong number is worse than a missing one, so
+an entry with no source ships as a `TODO`, not as a plausible guess. The validator enforces
+this and `pnpm test` runs it.
+
+See [`catalog/README.md`](./catalog/README.md) for the format, including how to handle
+benefits with no dollar cap. Corrections and new cards are welcome as PRs — please include
+the issuer link you checked and run `pnpm test` first.
+
+Currently covered: Amex Platinum, Chase Sapphire Reserve, Chase Sapphire Preferred. The
+rest of the premium market is unfinished.
+
+---
+
+## Development
+
+```bash
+pnpm test     # 355 tests
+pnpm lint     # eslint + tsc --noEmit
+pnpm build
+```
+
+Two modules must not be wrong, and are tested accordingly:
+
+- **`lib/periods`** — the period engine. Pure functions; `asOf` is always injected, and a
+  lint rule stops anything in there from reading the clock.
+- **`lib/ledger`** — the four-way split. The invariant holds per row, so a summation bug
+  can't break it.
+
+[`lib/scenarios.test.ts`](./lib/scenarios.test.ts) is the best place to start reading. Each
+test is named for a rule, says why the rule exists, and drives the real modules end to end —
+including the ones learned the hard way, like a leap-day card year landing on Feb 28 and an
+authorized user card not accruing primary-only credits.
+
+`SPEC.md` is the source of truth for behaviour. Where the implementation had to deviate, the
+spec says so and why.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).

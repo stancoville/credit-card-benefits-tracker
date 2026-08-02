@@ -575,8 +575,9 @@ Venture X, the premium Hilton and Marriott cards, Bilt, and US Bank Altitude Res
 
 1. ~~Drizzle schema + migrations~~ — done 2026-07-26
 2. ~~Period engine + full test suite (§5.3)~~ — done 2026-07-26. **Before any UI.**
-3. Catalog validator + idempotent `pnpm seed` — done 2026-07-26. **Catalog JSON itself is
-   still empty**: amounts must come from issuer terms, never from recall (§7).
+3. Catalog validator + idempotent `pnpm seed` — done 2026-07-26. Catalog population is
+   ongoing: amounts come from issuer terms, never from recall (§7), so entries land as
+   they are verified rather than all at once.
 4. ~~Ledger math module + invariant tests (§4)~~ — done 2026-07-26
 5. ~~Dashboard: hero, ledger bar, cliff strip, deadline groups~~ — done 2026-07-26
 6. ~~Mark used / enroll flows~~ — done 2026-07-26

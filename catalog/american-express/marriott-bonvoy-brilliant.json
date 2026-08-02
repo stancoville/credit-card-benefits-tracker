@@ -1,0 +1,69 @@
+{
+  "product": {
+    "slug": "marriott-bonvoy-brilliant",
+    "issuer": "american-express",
+    "name": "Marriott Bonvoy Brilliant American Express Card",
+    "annual_fee_cents": 65000,
+    "effective_from": "2023-09-01"
+  },
+  "benefits": [
+    {
+      "slug": "free-night-award",
+      "name": "Annual Free Night Award",
+      "benefit_type": "credit",
+      "max_value_cents": 68000,
+      "value_mode": "estimated",
+      "estimate_basis": "Award redeemable at hotels costing up to 85,000 Marriott Bonvoy points, valued at 0.8 cents per point per The Points Guy July 2026 valuations. Record what the room actually cost to replace this estimate.",
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "One night at a participating hotel with a redemption level at or under 85,000 points",
+      "notes": "Issued each year after the card renewal month and expires one year from issuance. The estimate is a ceiling, not a typical outcome — most redemptions land below the 85,000-point cap.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/marriott-bonvoy-brilliant/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2023-09-01"
+    },
+    {
+      "slug": "dining-credit",
+      "name": "Dining statement credit",
+      "benefit_type": "credit",
+      "max_value_cents": 2500,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "Restaurants worldwide",
+      "notes": "Up to $25 a month, for up to $300 each calendar year.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/marriott-bonvoy-brilliant/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2023-09-01"
+    },
+    {
+      "slug": "marriott-bonvoy-platinum-elite",
+      "name": "Marriott Bonvoy Platinum Elite status",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "notes": "Room upgrades, late checkout and a welcome gift. No dollar value is tracked.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/marriott-bonvoy-brilliant/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2023-09-01"
+    },
+    {
+      "slug": "ritz-st-regis-property-credit",
+      "name": "Ritz-Carlton and St. Regis property credit",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "notes": "Up to $100 in qualifying charges on a direct-booked stay of two nights or more at The Ritz-Carlton or St. Regis. Recorded as a perk rather than a credit because it is per-stay with no periodic allowance, which the period engine cannot express. TODO: confirm whether an annual cap exists; if it does this becomes a credit.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/marriott-bonvoy-brilliant/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2023-09-01"
+    }
+  ]
+}

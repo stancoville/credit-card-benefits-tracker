@@ -1,0 +1,70 @@
+{
+  "product": {
+    "slug": "amex-gold-consumer",
+    "issuer": "american-express",
+    "name": "American Express Gold Card",
+    "annual_fee_cents": 32500,
+    "effective_from": "2024-07-01"
+  },
+  "benefits": [
+    {
+      "slug": "uber-cash-monthly",
+      "name": "Uber Cash",
+      "benefit_type": "credit",
+      "max_value_cents": 1000,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "Uber rides and Uber Eats in the US",
+      "notes": "Resets on the first day of each calendar month and does not roll over. The Uber account must be linked to the card.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-07-01"
+    },
+    {
+      "slug": "dining-credit",
+      "name": "Dining credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1000,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "merchant_scope": "Grubhub, The Cheesecake Factory, Goldbelly, Wine.com, Milk Bar and other participating partners",
+      "notes": "TODO: the participating merchant list changes periodically — re-check the issuer page before relying on merchant_scope.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-07-01"
+    },
+    {
+      "slug": "dunkin-credit",
+      "name": "Dunkin' credit",
+      "benefit_type": "credit",
+      "max_value_cents": 700,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "merchant_scope": "Dunkin' locations in the US",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-07-01"
+    },
+    {
+      "slug": "resy-credit",
+      "name": "Resy dining credit",
+      "benefit_type": "credit",
+      "max_value_cents": 5000,
+      "reset_type": "semiannual",
+      "reset_anchor": "calendar",
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "merchant_scope": "US Resy-affiliated restaurants",
+      "notes": "Up to $50 from January through June and again from July through December.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-07-01"
+    }
+  ]
+}

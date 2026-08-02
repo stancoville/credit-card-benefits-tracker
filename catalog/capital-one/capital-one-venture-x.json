@@ -1,0 +1,68 @@
+{
+  "product": {
+    "slug": "capital-one-venture-x",
+    "issuer": "capital-one",
+    "name": "Capital One Venture X Rewards Credit Card",
+    "annual_fee_cents": 39500,
+    "effective_from": "2021-11-01"
+  },
+  "benefits": [
+    {
+      "slug": "capital-one-travel-credit",
+      "name": "Capital One Travel credit",
+      "benefit_type": "credit",
+      "max_value_cents": 30000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "Bookings made through Capital One Travel",
+      "notes": "Resets on the card anniversary, not January 1, and unused value is forfeited rather than rolled over.",
+      "source_url": "https://www.capitalone.com/learn-grow/more-than-money/all-about-venture-x/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2021-11-01"
+    },
+    {
+      "slug": "anniversary-bonus-miles",
+      "name": "Anniversary bonus miles",
+      "benefit_type": "perk",
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "notes": "10,000 bonus miles on each card anniversary. Recorded as a perk rather than a credit because it posts automatically and cannot be forfeited — counting it would park value in 'available' that is never actually at risk.",
+      "source_url": "https://www.capitalone.com/learn-grow/more-than-money/all-about-venture-x/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2021-11-01"
+    },
+    {
+      "slug": "priority-pass-and-lounges",
+      "name": "Lounge access",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "requires_enrollment": true,
+      "applies_to": "both",
+      "notes": "Capital One Lounges and Priority Pass Select after enrolment. No dollar value is tracked.",
+      "source_url": "https://www.capitalone.com/learn-grow/more-than-money/all-about-venture-x/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2021-11-01"
+    },
+    {
+      "slug": "global-entry-tsa-precheck",
+      "name": "Global Entry or TSA PreCheck credit",
+      "benefit_type": "credit",
+      "max_value_cents": 12000,
+      "reset_type": "rolling",
+      "reset_interval": 4,
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "Global Entry or TSA PreCheck application fee",
+      "notes": "TODO: confirm the current credit amount and whether the cycle is 4 or 4.5 years on the issuer page.",
+      "source_url": "https://www.capitalone.com/learn-grow/more-than-money/all-about-venture-x/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2021-11-01"
+    }
+  ]
+}

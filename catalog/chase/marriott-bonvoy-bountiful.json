@@ -1,0 +1,24 @@
+{
+  "product": {
+    "slug": "marriott-bonvoy-bountiful",
+    "issuer": "chase",
+    "name": "Marriott Bonvoy Bountiful Card",
+    "annual_fee_cents": 25000,
+    "effective_from": "2023-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "spend-earned-free-night-award",
+      "name": "Free Night Award after $15,000 spend",
+      "benefit_type": "perk",
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "notes": "One Free Night Award, redeemable at hotels up to 50,000 points, after $15,000 of purchases in a calendar year. Recorded as a perk rather than an estimated credit because it is conditional on spend. TODO: confirm on the issuer page whether an unconditional anniversary award also exists on this card.",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/marriott-bonvoy/bountiful",
+      "verified_on": "2026-08-02",
+      "effective_from": "2023-01-01"
+    }
+  ]
+}

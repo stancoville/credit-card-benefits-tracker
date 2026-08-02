@@ -1,0 +1,24 @@
+{
+  "product": {
+    "slug": "marriott-bonvoy-bold",
+    "issuer": "chase",
+    "name": "Marriott Bonvoy Bold Credit Card",
+    "annual_fee_cents": 0,
+    "effective_from": "2020-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "marriott-bonvoy-silver-elite",
+      "name": "Marriott Bonvoy Silver Elite status",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "notes": "Complimentary Silver Elite status while the card is open. This card carries no annual Free Night Award and no recurring statement credits, so it has nothing for the ledger to track.",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/marriott-bonvoy",
+      "verified_on": "2026-08-02",
+      "effective_from": "2020-01-01"
+    }
+  ]
+}

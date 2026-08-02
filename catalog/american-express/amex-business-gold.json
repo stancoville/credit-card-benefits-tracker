@@ -1,0 +1,41 @@
+{
+  "product": {
+    "slug": "amex-business-gold",
+    "issuer": "american-express",
+    "name": "American Express Business Gold Card",
+    "annual_fee_cents": 37500,
+    "effective_from": "2024-10-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "flexible-business-credit",
+      "name": "Flexible business credit",
+      "benefit_type": "credit",
+      "max_value_cents": 2000,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "FedEx, Grubhub and US office supply stores",
+      "notes": "Up to $20 a month, for up to $240 each calendar year. TODO: the FedEx portion was documented as running through 2026-10-01 \u2014 re-check the merchant list after that date.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-gold-card-amex/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-10-01"
+    },
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "walmart-plus-credit",
+      "name": "Walmart+ membership credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1295,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "One auto-renewing monthly Walmart+ membership",
+      "notes": "Covers the membership fee only; applicable taxes are not included.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-gold-card-amex/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2024-10-01"
+    }
+  ]
+}

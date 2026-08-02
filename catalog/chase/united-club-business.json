@@ -1,0 +1,111 @@
+{
+  "product": {
+    "slug": "united-club-business",
+    "issuer": "chase",
+    "name": "United Club Business Card",
+    "annual_fee_cents": 69500,
+    "effective_from": "2026-01-01"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "renowned-hotels-credit",
+      "name": "Renowned Hotels credit",
+      "benefit_type": "credit",
+      "max_value_cents": 20000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "merchant_scope": "Prepaid stays at Renowned Hotels and Resorts",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "jsx-credit",
+      "name": "JSX flight credit",
+      "benefit_type": "credit",
+      "max_value_cents": 20000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "merchant_scope": "Flights booked directly with JSX",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "car-rental-credit",
+      "name": "Avis and Budget travel credit",
+      "benefit_type": "credit",
+      "max_value_cents": 10000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "merchant_scope": "Avis or Budget rentals booked through cars.united.com",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "farelock-credit",
+      "name": "FareLock credit",
+      "benefit_type": "credit",
+      "max_value_cents": 5000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "merchant_scope": "FareLock purchases made with the card",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "rideshare-credit",
+      "name": "Rideshare credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1250,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "Rideshare purchases",
+      "notes": "TODO: the issuer states up to $150 each calendar year; confirm the monthly split and any December uplift before relying on the monthly figure.",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "global-entry-tsa-precheck",
+      "name": "Global Entry, TSA PreCheck or NEXUS credit",
+      "benefit_type": "credit",
+      "max_value_cents": 12000,
+      "reset_type": "rolling",
+      "reset_interval": 4,
+      "reset_anchor": "card_open",
+      "merchant_scope": "Application fee",
+      "notes": "Global Entry, TSA PreCheck or NEXUS application fee, once every four years.",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "both",
+      "slug": "united-club-membership",
+      "name": "United Club All Access membership",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "notes": "Unlimited United Club lounge access. No dollar value is tracked.",
+      "source_url": "https://creditcards.chase.com/business-credit-cards/united/united-club-business",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-01-01"
+    }
+  ]
+}

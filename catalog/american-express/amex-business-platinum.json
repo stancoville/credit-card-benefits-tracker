@@ -1,0 +1,69 @@
+{
+  "product": {
+    "slug": "amex-business-platinum",
+    "issuer": "american-express",
+    "name": "The Business Platinum Card",
+    "annual_fee_cents": 89500,
+    "effective_from": "2025-09-18"
+  },
+  "benefits": [
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "wireless-credit",
+      "name": "Wireless provider credit",
+      "benefit_type": "credit",
+      "max_value_cents": 1000,
+      "reset_type": "monthly",
+      "reset_anchor": "calendar",
+      "merchant_scope": "US wireless telephone service providers",
+      "notes": "Up to $10 a month, for up to $120 each calendar year.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-platinum-card-amex/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2025-09-18"
+    },
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "dell-credit",
+      "name": "Dell Technologies credit",
+      "benefit_type": "credit",
+      "max_value_cents": 15000,
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "merchant_scope": "US purchases made directly with Dell Technologies",
+      "notes": "Restructured on 2025-07-01 from $200 semiannually to $150 per calendar year. A further $1,000 credit unlocks after $5,000 of Dell spend in the same year; that tier is not tracked because the engine cannot express a spend threshold.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-platinum-card-amex/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2025-07-01"
+    },
+    {
+      "requires_enrollment": true,
+      "applies_to": "primary",
+      "slug": "adobe-credit",
+      "name": "Adobe credit",
+      "benefit_type": "credit",
+      "max_value_cents": 25000,
+      "reset_type": "annual",
+      "reset_anchor": "calendar",
+      "merchant_scope": "US purchases made directly with Adobe",
+      "notes": "Requires at least $600 of Adobe spend in the calendar year before any credit posts. The engine cannot express a spend threshold, so this shows as claimable from January \u2014 treat it as conditional.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-platinum-card-amex/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2025-07-01"
+    },
+    {
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "slug": "global-lounge-collection",
+      "name": "Global Lounge Collection access",
+      "benefit_type": "perk",
+      "reset_type": "one_time",
+      "reset_anchor": "card_open",
+      "notes": "Centurion Lounges, Priority Pass Select and others. No dollar value is tracked.",
+      "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-platinum-card-amex/",
+      "verified_on": "2026-08-02",
+      "effective_from": "2025-09-18"
+    }
+  ]
+}

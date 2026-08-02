@@ -183,7 +183,14 @@ export const catalogFileSchema = z
   })
 
 export const issuersFileSchema = z
-  .array(z.strictObject({ slug, name }))
+  .array(
+    z.strictObject({
+      slug,
+      name,
+      /** Where to find a card's account open date with this issuer. See db/schema.ts. */
+      account_opened_hint: z.string().min(1).optional(),
+    }),
+  )
   .superRefine((issuers, ctx) => {
     const seen = new Set<string>()
     issuers.forEach((issuer, index) => {

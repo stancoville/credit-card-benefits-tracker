@@ -210,3 +210,14 @@ describe('the real /catalog directory', () => {
     }
   })
 })
+
+describe('the shipped issuer registry', () => {
+  it('gives every issuer guidance on finding the account open date', () => {
+    // opened_on anchors every period key (SPEC §5.2) and almost nobody knows it offhand,
+    // so an issuer without a hint is a gap a user will feel.
+    const catalog = loadCatalog({ includeTemplates: false })
+    for (const issuer of catalog.issuers) {
+      expect(issuer.account_opened_hint, issuer.slug).toBeTruthy()
+    }
+  })
+})

@@ -318,3 +318,29 @@ describe('§4.6 estimated values must carry their reasoning', () => {
     )
   })
 })
+
+describe('issuer account-opened hints', () => {
+  it('accepts an issuer with a hint', () => {
+    const result = issuersFileSchema.safeParse([
+      {
+        slug: 'example-issuer',
+        name: 'Example Issuer',
+        account_opened_hint: 'Log in, open the card, then Account Details.',
+      },
+    ])
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts an issuer without one, since the hint is optional', () => {
+    expect(
+      issuersFileSchema.safeParse([{ slug: 'example-issuer', name: 'Example Issuer' }]).success,
+    ).toBe(true)
+  })
+
+  it('rejects an empty hint rather than storing a blank string', () => {
+    const result = issuersFileSchema.safeParse([
+      { slug: 'example-issuer', name: 'Example Issuer', account_opened_hint: '' },
+    ])
+    expect(result.success).toBe(false)
+  })
+})

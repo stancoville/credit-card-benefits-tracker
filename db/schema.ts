@@ -102,6 +102,17 @@ export const issuers = pgTable('issuers', {
   id: uuid('id').primaryKey().defaultRandom(),
   slug: text('slug').notNull().unique(),
   name: text('name').notNull(),
+  /**
+   * Where this issuer shows a card's account open date, shown as help on the add-card form.
+   *
+   * `opened_on` anchors every cardmember-year period and every redemption key (SPEC §5.2),
+   * but almost nobody knows it offhand, and the obvious-looking field is sometimes the wrong
+   * one — Amex's "Member Since" is the relationship start, not the card's open date.
+   *
+   * Navigation guidance, not an amount, so hard rule 5's sourcing requirement does not apply.
+   * A stale hint is a mild annoyance; a stale figure is a wrong number.
+   */
+  accountOpenedHint: text('account_opened_hint'),
 })
 
 export const cardProducts = pgTable(

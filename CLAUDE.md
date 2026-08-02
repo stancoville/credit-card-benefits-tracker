@@ -26,17 +26,20 @@ Server Actions for mutations. No separate API layer in v1.
 
 ## Migrations
 
-**Until the first production deploy, keep a single migration.** Someone cloning this repo
-should apply one file that matches `db/schema.ts` exactly, not replay a history no database
-ever lived through. So schema changes are made by regenerating, not incrementing:
+**Increment. Never squash.** As of 2026-08-02 the schema is deployed to the production Neon
+branch, so `db/migrations` is a real history that a real database has replayed. Deleting and
+regenerating it would break the `drizzle-kit migrate` journal and leave production
+unmigratable.
+
+Schema changes are made by editing `db/schema.ts` and generating the next migration:
 
 ```
-rm -rf db/migrations && mkdir db/migrations && pnpm db:generate
+pnpm db:generate     # writes the next NNNN_*.sql — never delete the earlier ones
+pnpm db:migrate      # apply, using the DIRECT (non-pooled) Neon connection string
 ```
 
-Once a migration has been applied to the production Neon branch this reverses: squashing
-would break the `drizzle-kit migrate` journal, and increments become the only safe option.
-Delete this section when that day comes.
+`db/schema.ts` stays the source of truth; the migrations are how a database catches up to it.
+`pnpm db:push` is fine for a scratch database, never for production.
 
 ## Hard rules
 

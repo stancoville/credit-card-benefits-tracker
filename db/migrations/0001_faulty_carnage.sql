@@ -1,0 +1,1 @@
+ALTER TABLE "issuers" ADD COLUMN "account_opened_hint" text;

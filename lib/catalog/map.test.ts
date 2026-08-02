@@ -44,11 +44,21 @@ const base = {
 }
 
 describe('toIssuerRow', () => {
-  it('maps slug and name', () => {
+  it('maps slug and name, with no hint by default', () => {
     expect(toIssuerRow({ slug: 'example-issuer', name: 'Example Issuer' })).toEqual({
       slug: 'example-issuer',
       name: 'Example Issuer',
+      accountOpenedHint: null,
     })
+  })
+
+  it('carries the account-opened hint through when present', () => {
+    const row = toIssuerRow({
+      slug: 'example-issuer',
+      name: 'Example Issuer',
+      account_opened_hint: 'Log in, then Account Details.',
+    })
+    expect(row.accountOpenedHint).toBe('Log in, then Account Details.')
   })
 })
 

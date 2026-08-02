@@ -51,7 +51,13 @@ async function seed(): Promise<void> {
     await db
       .insert(issuers)
       .values(toIssuerRow(issuer))
-      .onConflictDoUpdate({ target: issuers.slug, set: { name: issuer.name } })
+      .onConflictDoUpdate({
+        target: issuers.slug,
+        set: {
+          name: issuer.name,
+          accountOpenedHint: toIssuerRow(issuer).accountOpenedHint ?? null,
+        },
+      })
     issuerCount += 1
   }
 

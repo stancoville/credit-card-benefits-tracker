@@ -1,26 +1,32 @@
 [
   {
     "slug": "american-express",
-    "name": "American Express"
+    "name": "American Express",
+    "account_opened_hint": "Log in, open the card, then Account Services → Card Details. Do not use the \"Member Since\" year printed on the card — that is when you first became an Amex customer, not when this card was opened, and Amex routinely backdated it before 2015."
   },
   {
     "slug": "chase",
-    "name": "Chase"
+    "name": "Chase",
+    "account_opened_hint": "Log in, open the card, then Account details on the web or the ⋯ menu → Account details in the app. It is also on the first page of any statement PDF."
   },
   {
     "slug": "capital-one",
-    "name": "Capital One"
+    "name": "Capital One",
+    "account_opened_hint": "Log in, open the card, then Account Details, or I Want To → View Account Details. It also appears on the first page of a statement."
   },
   {
     "slug": "citi",
-    "name": "Citi"
+    "name": "Citi",
+    "account_opened_hint": "Log in, open the card, then Account Details. It is also in the summary on the first page of a statement."
   },
   {
     "slug": "us-bank",
-    "name": "U.S. Bank"
+    "name": "U.S. Bank",
+    "account_opened_hint": "Log in, open the card, then Account Options → Account Details, or check the first page of a monthly statement."
   },
   {
     "slug": "bank-of-america",
-    "name": "Bank of America"
+    "name": "Bank of America",
+    "account_opened_hint": "Log in, open the card, then the Information & Services tab. It is also on the first page of a statement."
   }
 ]

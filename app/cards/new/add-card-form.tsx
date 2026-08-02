@@ -51,6 +51,10 @@ export function AddCardForm({
   )
   const chosen = products.find((product) => product.id === productId)
 
+  // Help text follows the issuer step, so it is available before a card is even picked.
+  const issuerHint = forIssuer[0]?.issuerAccountOpenedHint ?? null
+  const issuerName = forIssuer[0]?.issuerName ?? ''
+
   useEffect(() => {
     if (state?.ok) router.push('/cards')
   }, [state, router])
@@ -127,19 +131,60 @@ export function AddCardForm({
           </select>
         </label>
 
-        <label className="block text-sm">
-          <span className="font-medium">Account opened</span>
-          <input
-            type="date"
-            name="openedOn"
-            required
-            max={today}
-            className="figure border-hairline mt-1 w-full rounded border px-3 py-2"
-          />
-          <span className="text-muted mt-1 block text-xs">
-            This anchors every cardmember-year benefit, so use the real account open date.
-          </span>
-        </label>
+        <div className="text-sm">
+          <label className="block">
+            <span className="font-medium">Account opened</span>
+            <input
+              type="date"
+              name="openedOn"
+              required
+              max={today}
+              className="figure border-hairline mt-1 w-full rounded border px-3 py-2"
+            />
+          </label>
+          <p className="text-muted mt-1 text-xs">
+            This anchors every cardmember-year benefit and every deadline on this card, so a
+            wrong date shifts all of them.
+          </p>
+
+          {/*
+            Most people do not know this date offhand, and for one issuer the obvious-looking
+            field is the wrong one — so the help is issuer-specific and always reachable.
+          */}
+          <details className="border-hairline bg-paper mt-2 rounded border px-3 py-2">
+            <summary className="text-muted hover:text-ink cursor-pointer text-xs">
+              Where do I find this?
+            </summary>
+            <div className="mt-2 space-y-2 text-xs">
+              {issuerHint ? (
+                <p>
+                  <span className="text-ink font-medium">{issuerName}: </span>
+                  <span className="text-muted">{issuerHint}</span>
+                </p>
+              ) : (
+                <p className="text-muted">Pick an issuer above for guidance specific to them.</p>
+              )}
+              <p className="text-muted">
+                <span className="text-ink font-medium">Any issuer: </span>
+                your credit report lists a &ldquo;Date opened&rdquo; for every card, and it is
+                the authoritative answer if the issuer&rsquo;s page is unclear. Free weekly at{' '}
+                <a
+                  href="https://www.annualcreditreport.com"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-ink underline"
+                >
+                  annualcreditreport.com
+                </a>
+                . Your welcome email or cardholder agreement usually has it too.
+              </p>
+              <p className="text-muted">
+                If you can only find the month, the first of that month is a reasonable
+                starting point — you can remove the card and re-add it once you know.
+              </p>
+            </div>
+          </details>
+        </div>
 
         <label className="block text-sm">
           <span className="font-medium">

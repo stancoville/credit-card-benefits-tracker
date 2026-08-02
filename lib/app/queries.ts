@@ -43,6 +43,8 @@ export interface ProductOption {
   /** Stable key for grouping — issuer display names can change, slugs don't. */
   issuerSlug: string
   issuerName: string
+  /** Where this issuer shows the account open date — help text for the add-card form. */
+  issuerAccountOpenedHint: string | null
   annualFee: number
   /** Counts shown in the picker so a near-identical product can be told apart. */
   creditCount: number
@@ -90,6 +92,7 @@ export async function getProductOptions(): Promise<ProductOption[]> {
       name: cardProducts.name,
       issuerSlug: issuers.slug,
       issuerName: issuers.name,
+      issuerAccountOpenedHint: issuers.accountOpenedHint,
       annualFee: cardProducts.annualFee,
       creditCount: sql<number>`count(*) filter (where ${benefits.benefitType} = 'credit')::int`,
       perkCount: sql<number>`count(*) filter (where ${benefits.benefitType} = 'perk')::int`,
@@ -97,7 +100,7 @@ export async function getProductOptions(): Promise<ProductOption[]> {
     .from(cardProducts)
     .innerJoin(issuers, eq(cardProducts.issuerId, issuers.id))
     .leftJoin(benefits, eq(benefits.productId, cardProducts.id))
-    .groupBy(cardProducts.id, issuers.slug, issuers.name)
+    .groupBy(cardProducts.id, issuers.slug, issuers.name, issuers.accountOpenedHint)
     .orderBy(asc(issuers.name), asc(cardProducts.name))
 }
 

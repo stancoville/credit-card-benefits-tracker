@@ -13,7 +13,11 @@ import type { NewBenefit, NewCardProduct, NewIssuer } from '@/db/schema'
 import type { CatalogBenefit, CatalogIssuer, CatalogProduct } from './schema'
 
 export function toIssuerRow(issuer: CatalogIssuer): NewIssuer {
-  return { slug: issuer.slug, name: issuer.name }
+  return {
+    slug: issuer.slug,
+    name: issuer.name,
+    accountOpenedHint: issuer.account_opened_hint ?? null,
+  }
 }
 
 export function toProductRow(product: CatalogProduct, issuerId: string): NewCardProduct {

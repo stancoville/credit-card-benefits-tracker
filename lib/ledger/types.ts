@@ -29,6 +29,11 @@ export interface LedgerBenefit extends PeriodBenefit {
    * redemption — `maxValue` is only a planning default until then (SPEC §4.6).
    */
   readonly valueMode?: ValueMode | undefined
+  /**
+   * Qualifying spend required before this benefit's value exists (SPEC §4.7). Null or
+   * omitted means unconditional.
+   */
+  readonly unlockSpend?: number | null | undefined
 }
 
 export interface LedgerRedemption {
@@ -102,6 +107,12 @@ export interface LedgerTotals {
    * (SPEC §4.6).
    */
   readonly estimated: number
+  /**
+   * Value that exists but is gated behind a spend threshold and has not been claimed
+   * (SPEC §4.7). Reported alongside `potential`, never inside it — the same treatment
+   * `excluded` gets, and for the same reason: the four-way split has to stay trustworthy.
+   */
+  readonly unlockable: number
 }
 
 /** Ratios, not money. Compared to decide the ahead/behind colour in §6. */
@@ -113,9 +124,23 @@ export interface CapturePace {
   readonly status: 'ahead' | 'behind' | 'unknown'
 }
 
+/** A period whose value is real but still locked behind a spend threshold (SPEC §4.7). */
+export interface UnlockableRow {
+  readonly benefitId: string
+  readonly period: BenefitPeriod
+  /** What unlocking it would be worth. */
+  readonly value: number
+  /** Qualifying spend needed inside this period. */
+  readonly unlockSpend: number
+  /** True when `value` rests on a catalog estimate rather than a fixed amount. */
+  readonly isEstimated: boolean
+}
+
 export interface CardYearLedger {
   readonly cardYear: BenefitPeriod
   readonly rows: readonly LedgerRow[]
+  /** Not included in `rows` — these contribute to `unlockable`, not to `potential`. */
+  readonly unlockableRows: readonly UnlockableRow[]
   readonly totals: LedgerTotals
   /**
    * Σ `max_value` over periods of excluded benefits. Reported separately and never folded

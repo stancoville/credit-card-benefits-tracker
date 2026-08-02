@@ -164,7 +164,7 @@
       "requires_enrollment": false,
       "applies_to": "primary",
       "merchant_scope": "Global Entry application fee, or TSA PreCheck at a lower amount",
-      "notes": "TODO: confirm the current TSA PreCheck alternative amount and whether the cycle is 4 or 4.5 years on the issuer page before relying on this.",
+      "notes": "One credit every four years: up to $120 for Global Entry or up to $85 for TSA PreCheck, whichever application fee is charged first. Global Entry approval includes TSA PreCheck.",
       "source_url": "https://www.americanexpress.com/en-us/account/get-started/platinum/benefits-overview",
       "verified_on": "2026-08-02",
       "effective_from": "2025-09-18"

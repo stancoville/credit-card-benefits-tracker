@@ -20,6 +20,7 @@ CREATE TABLE "benefits" (
 	"benefit_type" "benefit_type" NOT NULL,
 	"max_value" integer,
 	"value_mode" "value_mode" DEFAULT 'fixed' NOT NULL,
+	"unlock_spend" integer,
 	"estimate_basis" text,
 	"reset_type" "reset_type" NOT NULL,
 	"reset_interval" integer DEFAULT 1 NOT NULL,
@@ -35,6 +36,8 @@ CREATE TABLE "benefits" (
 	CONSTRAINT "benefits_max_value_non_negative" CHECK ("benefits"."max_value" >= 0),
 	CONSTRAINT "benefits_credit_requires_max_value" CHECK ("benefits"."benefit_type" <> 'credit' or "benefits"."max_value" is not null),
 	CONSTRAINT "benefits_reset_interval_positive" CHECK ("benefits"."reset_interval" >= 1),
+	CONSTRAINT "benefits_unlock_spend_non_negative" CHECK ("benefits"."unlock_spend" is null or "benefits"."unlock_spend" >= 0),
+	CONSTRAINT "benefits_unlock_spend_must_be_credit" CHECK ("benefits"."unlock_spend" is null or "benefits"."benefit_type" = 'credit'),
 	CONSTRAINT "benefits_estimated_requires_basis" CHECK ("benefits"."value_mode" <> 'estimated' or "benefits"."estimate_basis" is not null),
 	CONSTRAINT "benefits_estimated_must_be_credit" CHECK ("benefits"."value_mode" <> 'estimated' or "benefits"."benefit_type" = 'credit'),
 	CONSTRAINT "benefits_effective_window_ordered" CHECK ("benefits"."effective_to" is null or "benefits"."effective_to" >= "benefits"."effective_from")

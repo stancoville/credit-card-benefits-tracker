@@ -147,6 +147,15 @@ export const benefits = pgTable(
     maxValue: integer('max_value'),
     valueMode: valueModeEnum('value_mode').notNull().default('fixed'),
     /**
+     * Qualifying spend required inside the benefit's own period before its value exists at
+     * all (SPEC §4.7). Null means unconditional.
+     *
+     * A Marriott Bevy free night needs $15,000 of calendar-year spend. That value is real
+     * and worth showing, but it is not `available` — it may be permanently out of reach —
+     * so it is reported as `unlockable`, outside the four-way split.
+     */
+    unlockSpend: integer('unlock_spend'),
+    /**
      * Where an estimated value came from — required when `value_mode = 'estimated'`, and
      * shown wherever the estimate is used. An estimate with no stated basis is a guess.
      */
@@ -182,6 +191,15 @@ export const benefits = pgTable(
       sql`${table.benefitType} <> 'credit' or ${table.maxValue} is not null`,
     ),
     check('benefits_reset_interval_positive', sql`${table.resetInterval} >= 1`),
+    check(
+      'benefits_unlock_spend_non_negative',
+      sql`${table.unlockSpend} is null or ${table.unlockSpend} >= 0`,
+    ),
+    // Only credits carry value, so only credits can have that value gated behind spend.
+    check(
+      'benefits_unlock_spend_must_be_credit',
+      sql`${table.unlockSpend} is null or ${table.benefitType} = 'credit'`,
+    ),
     // An estimate with no stated basis is exactly the plausible number hard rule 5 forbids.
     check(
       'benefits_estimated_requires_basis',

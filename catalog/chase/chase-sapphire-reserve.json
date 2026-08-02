@@ -56,16 +56,17 @@
       "slug": "stubhub-credit",
       "name": "StubHub and viagogo credit",
       "benefit_type": "credit",
-      "max_value_cents": 30000,
-      "reset_type": "annual",
+      "max_value_cents": 15000,
+      "reset_type": "semiannual",
       "reset_anchor": "calendar",
-      "requires_enrollment": false,
+      "requires_enrollment": true,
       "applies_to": "primary",
       "merchant_scope": "StubHub and viagogo event tickets",
-      "notes": "TODO: confirm on the issuer page whether this is split into semiannual windows like the dining credit before relying on the reset period.",
+      "notes": "Up to $150 from January through June and again from July through December, for $300 a calendar year. Must be activated once in the Chase app before it applies. The benefit is scheduled to end 2027-12-31.",
       "source_url": "https://creditcards.chase.com/rewards-credit-cards/sapphire/reserve",
       "verified_on": "2026-08-02",
-      "effective_from": "2025-06-23"
+      "effective_from": "2025-06-23",
+      "effective_to": "2027-12-31"
     },
     {
       "slug": "lyft-credit",

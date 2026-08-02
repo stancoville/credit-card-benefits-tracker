@@ -5,7 +5,12 @@
  * maroon = forfeited.
  */
 
-import type { CliffMonth, DashboardModel, DeadlineGroup } from '@/lib/app/dashboard'
+import type {
+  CliffMonth,
+  DashboardModel,
+  DeadlineGroup,
+  UnlockableItem,
+} from '@/lib/app/dashboard'
 import type { LedgerTotals } from '@/lib/ledger'
 import { formatCents } from '@/lib/money'
 import {
@@ -242,5 +247,62 @@ export function DeadlineGroups({
         </Panel>
       ))}
     </div>
+  )
+}
+
+/**
+ * Value gated behind a spend threshold (SPEC §4.7).
+ *
+ * Deliberately its own panel rather than a line in the ledger bar: this is real value, but
+ * it is not value you can go and claim today, so folding it into `available` would make the
+ * hero figure something you cannot act on.
+ */
+export function UnlockablePanel({ items }: { items: readonly UnlockableItem[] }) {
+  if (items.length === 0) return null
+  const total = items.reduce((sum, item) => sum + item.value, 0)
+
+  return (
+    <Panel className="p-4 sm:p-5">
+      <div className="mb-3 flex items-baseline justify-between">
+        <SectionHeading>Unlockable with spend</SectionHeading>
+        <p className="text-sm font-medium">
+          <Money cents={total} />
+        </p>
+      </div>
+
+      <ul className="divide-hairline divide-y">
+        {items.map((item) => (
+          <li
+            key={`${item.cardId}-${item.benefitId}`}
+            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2.5 first:pt-0 last:pb-0"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm">{item.benefitName}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <CardChip label={item.cardLabel} initial={item.ownerInitial} />
+                <span className="text-muted text-xs">
+                  Spend <Figure>{formatCents(item.unlockSpend)}</Figure>
+                  {item.periodEnd ? (
+                    <>
+                      {' by '}
+                      <Figure>{formatDate(item.periodEnd)}</Figure>
+                    </>
+                  ) : null}
+                </span>
+              </div>
+            </div>
+            <p className="text-muted shrink-0 text-right text-sm">
+              <Money cents={item.value} />
+              {item.isEstimated ? <span className="block text-xs">est.</span> : null}
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      <p className="text-muted mt-3 text-xs">
+        Not counted in the figures above — this only becomes yours after the spend. Mark it
+        used once you have it and it will count normally.
+      </p>
+    </Panel>
   )
 }

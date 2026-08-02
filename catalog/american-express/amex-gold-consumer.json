@@ -31,8 +31,8 @@
       "reset_anchor": "calendar",
       "requires_enrollment": true,
       "applies_to": "primary",
-      "merchant_scope": "Grubhub, The Cheesecake Factory, Goldbelly, Wine.com, Milk Bar and other participating partners",
-      "notes": "TODO: the participating merchant list changes periodically — re-check the issuer page before relying on merchant_scope.",
+      "merchant_scope": "Grubhub and Seamless, The Cheesecake Factory, Five Guys, Buffalo Wild Wings, and Wonder",
+      "notes": "Goldbelly and Wine.com left the programme on 2026-07-01. Does not roll over \u2014 unused value is lost at the end of each calendar month.",
       "source_url": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
       "verified_on": "2026-08-02",
       "effective_from": "2024-07-01"

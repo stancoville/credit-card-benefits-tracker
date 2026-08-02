@@ -20,6 +20,7 @@ import {
   DeadlineGroups,
   Hero,
   LedgerBar,
+  UnlockablePanel,
 } from '@/components/dashboard-parts'
 import { EmptyState, Figure, Money, SectionHeading } from '@/components/primitives'
 
@@ -86,6 +87,8 @@ export default async function DashboardPage() {
           <DeadlineGroups groups={model.deadlineGroups} asOf={model.asOf} />
         )}
       </section>
+
+      <UnlockablePanel items={model.unlockable} />
 
       {model.orphanedRedemptions.count > 0 ? (
         <p className="border-maroon bg-surface text-ink border-l-2 px-4 py-3 text-sm">

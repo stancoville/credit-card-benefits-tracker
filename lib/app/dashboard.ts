@@ -139,6 +139,23 @@ export interface DashboardModel {
   readonly deadlineGroups: readonly DeadlineGroup[]
   readonly cards: readonly CardSummary[]
   readonly orphanedRedemptions: { readonly count: number; readonly amount: number }
+  /**
+   * Value gated behind a spend threshold (SPEC §4.7). Shown as its own thing — never in
+   * the hero or the four-way split, because it is not value you can simply go and claim.
+   */
+  readonly unlockable: readonly UnlockableItem[]
+}
+
+export interface UnlockableItem {
+  readonly cardId: string
+  readonly benefitId: string
+  readonly benefitName: string
+  readonly cardLabel: string
+  readonly ownerInitial: string
+  readonly value: number
+  readonly unlockSpend: number
+  readonly isEstimated: boolean
+  readonly periodEnd: PlainDate | null
 }
 
 function cardLabel(card: DashboardCard): string {
@@ -183,6 +200,8 @@ function collectRows(input: DashboardInput, horizonDays: number): DeadlineRow[] 
       if (excluded.has(benefit.id)) continue
       // A primary-only credit does not exist on an authorized user card (SPEC §3.1).
       if (!benefitAppliesToCard(benefit.appliesTo, card.isAuthorizedUser)) continue
+      // Spend-gated value is not "about to evaporate" — it is not claimable yet (§4.7).
+      if (benefit.unlockSpend != null) continue
 
       const maxValue = benefit.maxValue ?? 0
 
@@ -284,6 +303,7 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
   const valueAtRisk = atRisk.reduce((sum, row) => sum + row.remaining, 0)
 
   const cardSummaries: CardSummary[] = []
+  const unlockable: UnlockableItem[] = []
   let excluded = 0
   let orphanCount = 0
   let orphanAmount = 0
@@ -329,6 +349,21 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
     orphanCount += ledger.orphanedRedemptions.count
     orphanAmount += ledger.orphanedRedemptions.amount
 
+    for (const locked of ledger.unlockableRows) {
+      const definition = card.benefits.find((entry) => entry.id === locked.benefitId)
+      unlockable.push({
+        cardId: card.id,
+        benefitId: locked.benefitId,
+        benefitName: definition?.name ?? locked.benefitId,
+        cardLabel: cardLabel(card),
+        ownerInitial: initialOf(card.ownerDisplayName),
+        value: locked.value,
+        unlockSpend: locked.unlockSpend,
+        isEstimated: locked.isEstimated,
+        periodEnd: locked.period.periodEnd,
+      })
+    }
+
     cardSummaries.push({
       card,
       totals: ledger.totals,
@@ -361,5 +396,6 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
     deadlineGroups: groups,
     cards: cardSummaries,
     orphanedRedemptions: { count: orphanCount, amount: orphanAmount },
+    unlockable: unlockable.sort((a, b) => b.value - a.value),
   }
 }

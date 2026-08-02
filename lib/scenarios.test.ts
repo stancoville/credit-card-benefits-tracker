@@ -614,3 +614,56 @@ describe('a household with two people, end to end', () => {
     expect(sam.cardYear?.periodStart).toBe('2026-02-28')
   })
 })
+
+describe('RULE §4.7: spend-gated value is shown, but not as available', () => {
+  // Why: a Marriott Bevy free night needs $15,000 of calendar-year spend. Hiding it loses
+  // real value; putting it in `available` makes the hero figure something you cannot act
+  // on. So it gets its own reported figure, beside the four-way split.
+  const gated = benefit({
+    id: 'spend-gated-award',
+    maxValue: 40000,
+    valueMode: 'estimated',
+    unlockSpend: 1500000,
+    resetType: 'annual',
+    resetAnchor: 'calendar',
+  })
+
+  it('stays out of potential and out of the hero', () => {
+    const result = ledger([gated])!
+    expect(result.totals.potential).toBe(0)
+    expect(result.totals.available).toBe(0)
+    const model = dashboard({ cards: [card({ benefits: [gated] })] })
+    expect(model.valueAtRisk).toBe(0)
+  })
+
+  it('is still reported, with the threshold attached', () => {
+    const result = ledger([gated])!
+    expect(result.totals.unlockable).toBe(40000)
+    const model = dashboard({ cards: [card({ benefits: [gated] })] })
+    expect(model.unlockable).toHaveLength(1)
+    expect(model.unlockable[0]!.unlockSpend).toBe(1500000)
+    expect(model.unlockable[0]!.value).toBe(40000)
+  })
+
+  it('counts normally once it has actually been used', () => {
+    const result = ledger([gated], {
+      redemptions: [
+        { benefitId: 'spend-gated-award', periodStart: d('2026-01-01'), amount: 47000 },
+      ],
+    })!
+    expect(result.totals.captured).toBe(47000)
+    expect(result.totals.unlockable).toBe(0)
+    expect(ledgerInvariantHolds(result.totals)).toBe(true)
+  })
+
+  it('never forfeits, because the app cannot know whether the threshold was met', () => {
+    const result = ledger([gated], { asOf: d('2027-02-01') })!
+    expect(result.totals.forfeited).toBe(0)
+  })
+
+  it('leaves the invariant untouched in every case', () => {
+    for (const asOf of [d('2026-07-26'), d('2027-02-01')]) {
+      expect(ledgerInvariantHolds(ledger([gated], { asOf })!.totals)).toBe(true)
+    }
+  })
+})

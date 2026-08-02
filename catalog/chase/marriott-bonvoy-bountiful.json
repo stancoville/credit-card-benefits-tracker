@@ -12,13 +12,18 @@
       "applies_to": "primary",
       "slug": "spend-earned-free-night-award",
       "name": "Free Night Award after $15,000 spend",
-      "benefit_type": "perk",
+      "benefit_type": "credit",
       "reset_type": "annual",
       "reset_anchor": "calendar",
-      "notes": "One Free Night Award, redeemable at hotels up to 50,000 points, after $15,000 of purchases in a calendar year. Recorded as a perk rather than an estimated credit because it is conditional on spend. TODO: confirm on the issuer page whether an unconditional anniversary award also exists on this card.",
+      "notes": "Earned once each calendar year after $15,000 of purchases; confirmed this card has no unconditional anniversary award. Deposited 8-12 weeks after the renewal month once the threshold is met.",
       "source_url": "https://creditcards.chase.com/travel-credit-cards/marriott-bonvoy/bountiful",
       "verified_on": "2026-08-02",
-      "effective_from": "2023-01-01"
+      "effective_from": "2023-01-01",
+      "max_value_cents": 40000,
+      "value_mode": "estimated",
+      "estimate_basis": "Award redeemable at hotels costing up to 50,000 Marriott Bonvoy points, valued at 0.8 cents per point per The Points Guy July 2026 valuations. This is the award ceiling, not a typical redemption \u2014 record what the room actually cost to replace it.",
+      "unlock_spend_cents": 1500000,
+      "merchant_scope": "One night at a participating hotel with a redemption level at or under 50,000 points"
     }
   ]
 }

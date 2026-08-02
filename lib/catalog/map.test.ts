@@ -90,6 +90,7 @@ describe('toBenefitRow', () => {
       maxValue: 1500,
       valueMode: 'fixed',
       estimateBasis: null,
+      unlockSpend: null,
       resetType: 'monthly',
       resetInterval: 1,
       resetAnchor: 'calendar',
@@ -170,5 +171,22 @@ describe('§4.6 estimated benefits map their basis through', () => {
     const row = toBenefitRow(file.benefits[0]!, PRODUCT_ID)
     expect(row.valueMode).toBe('fixed')
     expect(row.estimateBasis).toBeNull()
+  })
+})
+
+describe('§4.7 spend-gated benefits carry their threshold through', () => {
+  it('maps unlock_spend_cents onto the row', () => {
+    const gated = {
+      ...base.benefits[0]!,
+      slug: 'spend-gated-award',
+      name: 'Award after spend',
+      unlock_spend_cents: 1500000,
+    }
+    const file = parse({ ...base, benefits: [gated] })
+    expect(toBenefitRow(file.benefits[0]!, PRODUCT_ID).unlockSpend).toBe(1500000)
+  })
+
+  it('leaves an unconditional benefit with a null threshold', () => {
+    expect(toBenefitRow(parse(base).benefits[0]!, PRODUCT_ID).unlockSpend).toBeNull()
   })
 })

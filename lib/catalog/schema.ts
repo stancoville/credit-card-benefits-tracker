@@ -75,6 +75,11 @@ const creditBenefit = z.strictObject({
   value_mode: z.enum(valueModeEnum.enumValues).default('fixed'),
   /** Where an estimate came from. Required when value_mode is 'estimated'. */
   estimate_basis: z.string().min(1).optional(),
+  /**
+   * Qualifying spend required inside the benefit's period before its value exists at all
+   * (SPEC §4.7). Omit for unconditional benefits.
+   */
+  unlock_spend_cents: cents.optional(),
 })
 
 const perkBenefit = z.strictObject({

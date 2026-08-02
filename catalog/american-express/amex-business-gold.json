@@ -17,7 +17,7 @@
       "reset_type": "monthly",
       "reset_anchor": "calendar",
       "merchant_scope": "FedEx, Grubhub and US office supply stores",
-      "notes": "Up to $20 a month, for up to $240 each calendar year. TODO: the FedEx portion was documented as running through 2026-10-01 \u2014 re-check the merchant list after that date.",
+      "notes": "Up to $20 a month, for up to $240 each calendar year. The FedEx portion of the merchant list runs through 2026-10-01; re-verify the scope after that date.",
       "source_url": "https://www.americanexpress.com/us/credit-cards/business/business-credit-cards/american-express-business-gold-card-amex/",
       "verified_on": "2026-08-02",
       "effective_from": "2024-10-01"

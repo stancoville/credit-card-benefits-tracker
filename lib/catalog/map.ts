@@ -38,6 +38,8 @@ export function toBenefitRow(benefit: CatalogBenefit, productId: string): NewBen
     valueMode: benefit.benefit_type === 'credit' ? benefit.value_mode : 'fixed',
     estimateBasis:
       benefit.benefit_type === 'credit' ? (benefit.estimate_basis ?? null) : null,
+    unlockSpend:
+      benefit.benefit_type === 'credit' ? (benefit.unlock_spend_cents ?? null) : null,
     resetType: benefit.reset_type,
     resetInterval: benefit.reset_interval,
     resetAnchor: benefit.reset_anchor,

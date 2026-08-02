@@ -22,7 +22,7 @@
       "effective_from": "2026-01-01"
     },
     {
-      "requires_enrollment": false,
+      "requires_enrollment": true,
       "applies_to": "primary",
       "slug": "rideshare-credit",
       "name": "Rideshare credit",
@@ -31,13 +31,13 @@
       "reset_type": "monthly",
       "reset_anchor": "calendar",
       "merchant_scope": "Rideshare purchases",
-      "notes": "$12 back each month, with $18 in December tracked separately. TODO: sources disagree on the annual cap for this credit ($100 in one place, $150 in another) \u2014 confirm on the issuer page.",
+      "notes": "$12 back each month from January through November, with $18 in December tracked separately, for up to $150 a calendar year. Yearly opt-in is required.",
       "source_url": "https://creditcards.chase.com/travel-credit-cards/united/club-infinite",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
     {
-      "requires_enrollment": false,
+      "requires_enrollment": true,
       "applies_to": "primary",
       "slug": "rideshare-credit-december-bonus",
       "name": "Rideshare credit December bonus",

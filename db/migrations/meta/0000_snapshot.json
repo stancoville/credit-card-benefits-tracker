@@ -1,5 +1,5 @@
 {
-  "id": "83fe2d71-54db-478f-aa66-10b6494b08f0",
+  "id": "9b1339b8-380f-47bd-ba51-0c1ad6f5491b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -142,6 +142,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'fixed'"
+        },
+        "unlock_spend": {
+          "name": "unlock_spend",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "estimate_basis": {
           "name": "estimate_basis",
@@ -295,6 +301,14 @@
         "benefits_reset_interval_positive": {
           "name": "benefits_reset_interval_positive",
           "value": "\"benefits\".\"reset_interval\" >= 1"
+        },
+        "benefits_unlock_spend_non_negative": {
+          "name": "benefits_unlock_spend_non_negative",
+          "value": "\"benefits\".\"unlock_spend\" is null or \"benefits\".\"unlock_spend\" >= 0"
+        },
+        "benefits_unlock_spend_must_be_credit": {
+          "name": "benefits_unlock_spend_must_be_credit",
+          "value": "\"benefits\".\"unlock_spend\" is null or \"benefits\".\"benefit_type\" = 'credit'"
         },
         "benefits_estimated_requires_basis": {
           "name": "benefits_estimated_requires_basis",

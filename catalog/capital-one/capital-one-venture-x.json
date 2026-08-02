@@ -30,7 +30,7 @@
       "reset_anchor": "card_open",
       "requires_enrollment": false,
       "applies_to": "primary",
-      "notes": "10,000 bonus miles on each card anniversary. Recorded as a perk rather than a credit because it posts automatically and cannot be forfeited — counting it would park value in 'available' that is never actually at risk.",
+      "notes": "10,000 bonus miles on each card anniversary. Recorded as a perk rather than a credit because it posts automatically and cannot be forfeited \u2014 counting it would park value in 'available' that is never actually at risk.",
       "source_url": "https://www.capitalone.com/learn-grow/more-than-money/all-about-venture-x/",
       "verified_on": "2026-08-02",
       "effective_from": "2021-11-01"
@@ -59,7 +59,7 @@
       "requires_enrollment": false,
       "applies_to": "primary",
       "merchant_scope": "Global Entry or TSA PreCheck application fee",
-      "notes": "TODO: confirm the current credit amount and whether the cycle is 4 or 4.5 years on the issuer page.",
+      "notes": "Up to $120 once every four years, applied to whichever of Global Entry or TSA PreCheck is charged first. Also available on Venture, Venture Business and Venture X Business.",
       "source_url": "https://www.capitalone.com/learn-grow/more-than-money/all-about-venture-x/",
       "verified_on": "2026-08-02",
       "effective_from": "2021-11-01"

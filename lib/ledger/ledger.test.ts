@@ -775,3 +775,71 @@ describe('§4.6 estimated-value benefits — a certificate is worth what you got
     expect(ledgerInvariantHolds(combined)).toBe(true)
   })
 })
+
+describe('§4.7 spend-gated value is unlockable, not available', () => {
+  // Why: a Marriott Bevy free night needs $15,000 of calendar-year spend. It is real value
+  // and worth showing, but it is not money you can simply go and claim — so it is reported
+  // beside the four-way split rather than inside it.
+  const gated = benefit({
+    id: 'spend-gated-award',
+    maxValue: 40000,
+    valueMode: 'estimated',
+    unlockSpend: 1500000,
+    resetType: 'annual',
+    resetAnchor: 'calendar',
+  })
+
+  it('keeps locked value out of potential and available', () => {
+    const ledger = ledgerForCardYear(input({ benefits: [gated] }))!
+    expect(ledger.totals.potential).toBe(0)
+    expect(ledger.totals.available).toBe(0)
+    expect(ledger.rows).toEqual([])
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('reports it as unlockable with the threshold attached', () => {
+    const ledger = ledgerForCardYear(input({ benefits: [gated] }))!
+    expect(ledger.totals.unlockable).toBe(40000)
+    expect(ledger.unlockableRows).toHaveLength(1)
+    expect(ledger.unlockableRows[0]!.unlockSpend).toBe(1500000)
+    expect(ledger.unlockableRows[0]!.value).toBe(40000)
+  })
+
+  it('counts it normally once something is actually recorded against it', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [gated],
+        redemptions: [
+          { benefitId: 'spend-gated-award', periodStart: d('2026-01-01'), amount: 52000 },
+        ],
+      }),
+    )!
+    expect(ledger.totals.captured).toBe(52000)
+    expect(ledger.totals.potential).toBe(52000)
+    expect(ledger.totals.unlockable).toBe(0)
+    expect(ledger.unlockableRows).toEqual([])
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('does not forfeit when the period closes, because spend is not tracked', () => {
+    // Claiming a loss the app cannot substantiate would be worse than claiming nothing.
+    const ledger = ledgerForCardYear(input({ benefits: [gated], asOf: d('2027-02-01') }))!
+    expect(ledger.totals.forfeited).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('leaves unconditional benefits completely alone', () => {
+    const ledger = ledgerForCardYear(input())!
+    expect(ledger.totals.unlockable).toBe(0)
+    expect(ledger.unlockableRows).toEqual([])
+    expect(ledger.totals.potential).toBe(12 * 1500)
+  })
+
+  it('keeps unlockable visible when summed across cards', () => {
+    const a = ledgerForCardYear(input({ benefits: [gated] }))!
+    const b = ledgerForCardYear(input())!
+    const combined = sumTotals([a.totals, b.totals])
+    expect(combined.unlockable).toBe(40000)
+    expect(ledgerInvariantHolds(combined)).toBe(true)
+  })
+})

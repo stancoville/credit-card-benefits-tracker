@@ -301,6 +301,27 @@ a verified credit amount (hard rule 5). Two consequences:
   figure containing it must say so. A total that quietly mixes measured and guessed value is
   the kind of number that stops being trusted.
 
+### 4.7 Spend-gated value is `unlockable`, not `available`
+
+Some benefits exist only after a spend threshold: the Marriott Bevy and Bountiful free
+nights need $15,000 of calendar-year spend, the Amex Marriott Business second award needs
+$60,000. `benefits.unlock_spend` records the threshold; null means unconditional.
+
+That value is real and must be **shown**, but it is not `available`. Forgetting to enrol is
+a lapse you can fix in seconds, so it belongs in the total (§4.2). Not having spent $15,000
+may be permanently out of reach, and putting it in "expiring in 30 days" would make the one
+figure the app exists to make actionable something you cannot act on.
+
+So it is reported as **`unlockable`**, beside the four-way split, exactly where `excluded`
+sits. Until something is recorded against it, such a period contributes nothing to
+`potential`, `available` or `forfeited`, and appears in `unlockableRows` with its threshold
+and deadline. Record a redemption and it counts normally from then on.
+
+**It never forfeits.** The app does not track spend, so it cannot know whether the threshold
+was met. Reporting a loss it cannot substantiate would be worse than reporting nothing — the
+honest cost being that an unlocked-but-unused award is not warned about. Tracking spend, or
+letting the household mark a threshold as met, would close that gap; neither is in v1.
+
 ### 4.5 Timezone is per household, not per user
 
 `households.timezone` is the single source (resolving the first item in §10). This is a

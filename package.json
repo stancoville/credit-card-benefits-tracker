@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . && tsc --noEmit",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "review": "tsx scripts/review.ts",
+    "check:links": "tsx scripts/check-links.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

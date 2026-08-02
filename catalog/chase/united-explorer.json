@@ -18,7 +18,7 @@
       "reset_anchor": "card_open",
       "merchant_scope": "Prepaid hotel stays booked through United Hotels",
       "notes": "$50 back on each of the first two prepaid stays, up to $100 each anniversary year.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -33,7 +33,7 @@
       "reset_anchor": "calendar",
       "merchant_scope": "Rideshare purchases",
       "notes": "$5 back each month, up to $60 each calendar year.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -48,7 +48,7 @@
       "reset_anchor": "card_open",
       "merchant_scope": "Avis or Budget rentals booked through cars.united.com",
       "notes": "$25 in United TravelBank cash per rental, up to $50 each anniversary year.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -63,7 +63,7 @@
       "reset_anchor": "calendar",
       "merchant_scope": "Instacart",
       "notes": "$10 a month, up to $120 each calendar year.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -77,7 +77,7 @@
       "reset_type": "annual",
       "reset_anchor": "card_open",
       "merchant_scope": "Flights booked directly with JSX",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -93,7 +93,7 @@
       "reset_anchor": "card_open",
       "merchant_scope": "Application fee",
       "notes": "Global Entry, TSA PreCheck or NEXUS application fee, once every four years.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -106,7 +106,7 @@
       "reset_type": "one_time",
       "reset_anchor": "card_open",
       "notes": "For the cardmember and one companion on United flights. No dollar value is tracked.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/explorer",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united-explorer",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     }

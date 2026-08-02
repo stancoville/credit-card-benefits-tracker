@@ -18,7 +18,7 @@
       "reset_anchor": "card_open",
       "merchant_scope": "United TravelBank cash",
       "notes": "Deposited shortly after account opening and again at every anniversary.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -32,7 +32,7 @@
       "reset_type": "annual",
       "reset_anchor": "card_open",
       "merchant_scope": "Prepaid stays at Renowned Hotels and Resorts",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -47,7 +47,7 @@
       "reset_anchor": "calendar",
       "merchant_scope": "Rideshare purchases",
       "notes": "$8 back each month. December carries $12 instead, tracked as rideshare-credit-december-bonus.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -62,7 +62,7 @@
       "reset_anchor": "calendar",
       "merchant_scope": "Rideshare purchases",
       "notes": "December pays $12 rather than the usual $8; this row carries the $4 difference. Modelled as a calendar-year benefit because the engine has no December-only period, so it reads as available earlier in the year than it can be spent. Its Dec 31 deadline is correct.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -77,7 +77,7 @@
       "reset_anchor": "card_open",
       "merchant_scope": "Avis or Budget rentals booked through cars.united.com",
       "notes": "$40 in United TravelBank cash per rental, up to $80 each anniversary year.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -92,7 +92,7 @@
       "reset_anchor": "calendar",
       "merchant_scope": "Instacart",
       "notes": "A $10 and a $5 credit each month, up to $180 each calendar year.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -106,7 +106,7 @@
       "reset_type": "annual",
       "reset_anchor": "card_open",
       "merchant_scope": "Flights booked directly with JSX",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -122,7 +122,7 @@
       "reset_anchor": "card_open",
       "merchant_scope": "Application fee",
       "notes": "Global Entry, TSA PreCheck or NEXUS application fee, once every four years.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     },
@@ -135,7 +135,7 @@
       "reset_type": "one_time",
       "reset_anchor": "card_open",
       "notes": "For the cardmember and one companion. No dollar value is tracked.",
-      "source_url": "https://creditcards.chase.com/travel-credit-cards/united/quest",
+      "source_url": "https://creditcards.chase.com/travel-credit-cards/united",
       "verified_on": "2026-08-02",
       "effective_from": "2026-01-01"
     }

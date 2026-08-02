@@ -1,5 +1,5 @@
 {
-  "id": "ac8f6544-185e-413e-b889-64600458c5cf",
+  "id": "83fe2d71-54db-478f-aa66-10b6494b08f0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -132,6 +132,20 @@
         "max_value": {
           "name": "max_value",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "value_mode": {
+          "name": "value_mode",
+          "type": "value_mode",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'fixed'"
+        },
+        "estimate_basis": {
+          "name": "estimate_basis",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -281,6 +295,14 @@
         "benefits_reset_interval_positive": {
           "name": "benefits_reset_interval_positive",
           "value": "\"benefits\".\"reset_interval\" >= 1"
+        },
+        "benefits_estimated_requires_basis": {
+          "name": "benefits_estimated_requires_basis",
+          "value": "\"benefits\".\"value_mode\" <> 'estimated' or \"benefits\".\"estimate_basis\" is not null"
+        },
+        "benefits_estimated_must_be_credit": {
+          "name": "benefits_estimated_must_be_credit",
+          "value": "\"benefits\".\"value_mode\" <> 'estimated' or \"benefits\".\"benefit_type\" = 'credit'"
         },
         "benefits_effective_window_ordered": {
           "name": "benefits_effective_window_ordered",
@@ -989,6 +1011,14 @@
         "annual",
         "rolling",
         "one_time"
+      ]
+    },
+    "public.value_mode": {
+      "name": "value_mode",
+      "schema": "public",
+      "values": [
+        "fixed",
+        "estimated"
       ]
     }
   },

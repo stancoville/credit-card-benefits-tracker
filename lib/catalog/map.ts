@@ -35,6 +35,9 @@ export function toBenefitRow(benefit: CatalogBenefit, productId: string): NewBen
     benefitType: benefit.benefit_type,
     // Perks carry no value and never enter a total (hard rule 7).
     maxValue: benefit.benefit_type === 'credit' ? benefit.max_value_cents : null,
+    valueMode: benefit.benefit_type === 'credit' ? benefit.value_mode : 'fixed',
+    estimateBasis:
+      benefit.benefit_type === 'credit' ? (benefit.estimate_basis ?? null) : null,
     resetType: benefit.reset_type,
     resetInterval: benefit.reset_interval,
     resetAnchor: benefit.reset_anchor,

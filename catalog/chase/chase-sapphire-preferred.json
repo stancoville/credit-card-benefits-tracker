@@ -1,0 +1,26 @@
+{
+  "product": {
+    "slug": "chase-sapphire-preferred",
+    "issuer": "chase",
+    "name": "Chase Sapphire Preferred",
+    "annual_fee_cents": 9500,
+    "effective_from": "2026-06-01"
+  },
+  "benefits": [
+    {
+      "slug": "hotel-credit",
+      "name": "Chase Travel hotel credit",
+      "benefit_type": "credit",
+      "max_value_cents": 10000,
+      "reset_type": "annual",
+      "reset_anchor": "card_open",
+      "requires_enrollment": false,
+      "applies_to": "primary",
+      "merchant_scope": "Hotel stays booked through Chase Travel",
+      "notes": "Resets on the account anniversary, not on January 1. Raised from $50 to $100 in the June 2026 refresh; accounts that had already used the $50 credit in their current anniversary year received the balance rather than a fresh $100.",
+      "source_url": "https://media.chase.com/news/Meet-the-New-Chase-Sapphire-Preferred",
+      "verified_on": "2026-08-02",
+      "effective_from": "2026-06-01"
+    }
+  ]
+}

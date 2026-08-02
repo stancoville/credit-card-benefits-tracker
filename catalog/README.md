@@ -52,3 +52,29 @@ rejected.
 
 Text product names only. Card designs and marks are trademarked (SPEC §8). Objects are
 validated strictly, so an added `logo_url` field fails the build rather than shipping.
+
+## Benefits with no dollar cap
+
+A free night award or anniversary certificate has no fixed value — it is worth whatever you
+got for it. Set `value_mode: "estimated"`, put a planning default in `max_value_cents`, and
+state where that default came from:
+
+```json
+{
+  "slug": "free-night-award",
+  "name": "Free night award",
+  "benefit_type": "credit",
+  "value_mode": "estimated",
+  "max_value_cents": 20000,
+  "estimate_basis": "35,000-point award cap valued at 0.6c/pt per TPG August 2026 valuations",
+  "source_url": "https://…issuer page describing the award…",
+  "verified_on": "2026-08-02"
+}
+```
+
+`estimate_basis` is required and the validator rejects the entry without it. The estimate is
+only a placeholder: once someone records what they actually got, the real figure replaces it
+and the dashboard stops labelling that value as estimated (SPEC §4.6).
+
+Points-valuation sites are an acceptable source **for estimates only**. A stated credit
+amount — "$300 travel credit" — still needs the issuer.

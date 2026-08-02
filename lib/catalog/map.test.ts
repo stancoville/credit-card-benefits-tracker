@@ -88,6 +88,8 @@ describe('toBenefitRow', () => {
       name: 'Example monthly credit',
       benefitType: 'credit',
       maxValue: 1500,
+      valueMode: 'fixed',
+      estimateBasis: null,
       resetType: 'monthly',
       resetInterval: 1,
       resetAnchor: 'calendar',
@@ -134,5 +136,39 @@ describe('toBenefitRow', () => {
     expect(row.resetAnchor).toBe('calendar')
     expect(row.effectiveFrom).toBe('2025-01-01')
     expect(row.effectiveTo).toBeNull()
+  })
+})
+
+describe('§4.6 estimated benefits map their basis through', () => {
+  const certificate = {
+    ...base.benefits[0]!,
+    slug: 'free-night-award',
+    name: 'Free night award',
+    max_value_cents: 20000,
+    value_mode: 'estimated' as const,
+    estimate_basis: 'Award capped at 35k points, valued at 0.6c/pt',
+  }
+
+  it('carries value_mode and estimate_basis onto the row', () => {
+    const file = parse({ ...base, benefits: [certificate] })
+    const row = toBenefitRow(file.benefits[0]!, PRODUCT_ID)
+    expect(row.valueMode).toBe('estimated')
+    expect(row.estimateBasis).toBe('Award capped at 35k points, valued at 0.6c/pt')
+    expect(row.maxValue).toBe(20000)
+  })
+
+  it('defaults a benefit with no value_mode to fixed with no basis', () => {
+    const row = toBenefitRow(parse(base).benefits[0]!, PRODUCT_ID)
+    expect(row.valueMode).toBe('fixed')
+    expect(row.estimateBasis).toBeNull()
+  })
+
+  it('gives a perk fixed mode and no basis, since perks carry no value', () => {
+    const perk = { ...base.benefits[0]!, benefit_type: 'perk' as const }
+    delete (perk as Record<string, unknown>).max_value_cents
+    const file = parse({ ...base, benefits: [perk] })
+    const row = toBenefitRow(file.benefits[0]!, PRODUCT_ID)
+    expect(row.valueMode).toBe('fixed')
+    expect(row.estimateBasis).toBeNull()
   })
 })

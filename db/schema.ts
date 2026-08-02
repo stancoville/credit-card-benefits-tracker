@@ -69,6 +69,22 @@ export const resetAnchorEnum = pgEnum('reset_anchor', ['calendar', 'card_open'])
 export const appliesToEnum = pgEnum('applies_to', ['primary', 'authorized_user', 'both'])
 
 /**
+ * How a benefit's value is determined (SPEC §4.6).
+ *
+ * `fixed` — `max_value` is a cap set by the issuer. A $100 credit is worth at most $100.
+ *
+ * `estimated` — the benefit has no dollar cap and its value is *realized at redemption*.
+ * A Marriott free night award used on a $500 room captured $500. `max_value` holds a
+ * default estimate for planning before it is used, and `estimate_basis` must say where
+ * that estimate came from.
+ *
+ * The split exists because an estimate is not an issuer term. Hard rule 5 keeps invented
+ * numbers out of the catalog, so an estimate cannot share a field — or a provenance story —
+ * with a verified credit amount.
+ */
+export const valueModeEnum = pgEnum('value_mode', ['fixed', 'estimated'])
+
+/**
  * How a redemption came to be recorded (SPEC §10).
  *
  * Email reminders are deferred from v1, but the column ships now: adding a column later
@@ -123,8 +139,18 @@ export const benefits = pgTable(
     slug: text('slug').notNull(),
     name: text('name').notNull(),
     benefitType: benefitTypeEnum('benefit_type').notNull(),
-    /** Integer cents. Null for perks; required for credits (enforced by check below). */
+    /**
+     * Integer cents. Null for perks; required for credits (enforced by check below).
+     *
+     * A cap when `value_mode = 'fixed'`; a default estimate when `'estimated'`.
+     */
     maxValue: integer('max_value'),
+    valueMode: valueModeEnum('value_mode').notNull().default('fixed'),
+    /**
+     * Where an estimated value came from — required when `value_mode = 'estimated'`, and
+     * shown wherever the estimate is used. An estimate with no stated basis is a guess.
+     */
+    estimateBasis: text('estimate_basis'),
     resetType: resetTypeEnum('reset_type').notNull(),
     /** Multiplies the base period: `monthly` with interval 3 is every three months. */
     resetInterval: integer('reset_interval').notNull().default(1),
@@ -156,6 +182,16 @@ export const benefits = pgTable(
       sql`${table.benefitType} <> 'credit' or ${table.maxValue} is not null`,
     ),
     check('benefits_reset_interval_positive', sql`${table.resetInterval} >= 1`),
+    // An estimate with no stated basis is exactly the plausible number hard rule 5 forbids.
+    check(
+      'benefits_estimated_requires_basis',
+      sql`${table.valueMode} <> 'estimated' or ${table.estimateBasis} is not null`,
+    ),
+    // Only credits carry value at all, so only credits can have their value estimated.
+    check(
+      'benefits_estimated_must_be_credit',
+      sql`${table.valueMode} <> 'estimated' or ${table.benefitType} = 'credit'`,
+    ),
     check(
       'benefits_effective_window_ordered',
       sql`${table.effectiveTo} is null or ${table.effectiveTo} >= ${table.effectiveFrom}`,
@@ -390,6 +426,7 @@ export type NewRedemption = typeof redemptions.$inferInsert
 
 export type BenefitType = (typeof benefitTypeEnum.enumValues)[number]
 export type RedemptionSource = (typeof redemptionSourceEnum.enumValues)[number]
+export type ValueMode = (typeof valueModeEnum.enumValues)[number]
 export type ResetType = (typeof resetTypeEnum.enumValues)[number]
 export type ResetAnchor = (typeof resetAnchorEnum.enumValues)[number]
 export type AppliesTo = (typeof appliesToEnum.enumValues)[number]

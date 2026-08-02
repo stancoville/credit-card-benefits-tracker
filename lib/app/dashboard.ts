@@ -51,6 +51,8 @@ export interface DashboardCard {
 export interface DashboardBenefit extends LedgerBenefit {
   readonly name: string
   readonly merchantScope: string | null
+  /** Shown wherever an estimated value is used, so a figure is never silently a guess. */
+  readonly estimateBasis?: string | null | undefined
 }
 
 export interface DashboardInput {

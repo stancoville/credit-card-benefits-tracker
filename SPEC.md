@@ -271,6 +271,36 @@ household's judgment about a benefit it *has*; this benefit simply is not on the
 appears in neither figure. The drill-in still lists it, marked as not counted, because
 knowing the product carries it is useful.
 
+### 4.6 Estimated-value benefits: a certificate is worth what you got for it
+
+Some benefits have no dollar cap. A Marriott free night award used on a $500 room captured
+$500; used on a $180 room it captured $180. `benefits.value_mode` distinguishes them:
+
+| `value_mode` | `max_value` means | Redemption |
+|---|---|---|
+| `fixed` | a cap set by the issuer | capped at `max_value` |
+| `estimated` | a default estimate for planning | records the **realized** value, uncapped |
+
+**`potential` becomes partly derived from redemptions.** For an estimated benefit the
+realized value *replaces* the estimate once recorded. The alternatives are both wrong:
+capping captured at the estimate silently discards real value, and letting it exceed the
+estimate drives `available` negative. Replacing keeps the money and the invariant.
+
+- unused → potential = estimate, available = estimate
+- used for $500 → potential = $500, captured = $500, available = $0
+- expired unused → potential = estimate, forfeited = estimate
+
+**An estimate is not an issuer term**, so it cannot share a field or a provenance story with
+a verified credit amount (hard rule 5). Two consequences:
+
+- `estimate_basis` is **required** whenever `value_mode = 'estimated'`, and says how the
+  number was derived — e.g. "35k-point award cap at 0.6c/pt per TPG August 2026 valuations".
+  Points-valuation sites are an acceptable source *for estimates only*; stated credit amounts
+  still come from the issuer.
+- `LedgerTotals.estimated` reports how much of `potential` rests on an estimate, and any
+  figure containing it must say so. A total that quietly mixes measured and guessed value is
+  the kind of number that stops being trusted.
+
 ### 4.5 Timezone is per household, not per user
 
 `households.timezone` is the single source (resolving the first item in §10). This is a

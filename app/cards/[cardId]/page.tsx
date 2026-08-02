@@ -50,6 +50,7 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
       maxValue: benefit.maxValue,
       requiresEnrollment: benefit.requiresEnrollment,
       appliesTo: benefit.appliesTo,
+      valueMode: benefit.valueMode,
       resetType: benefit.resetType,
       resetInterval: benefit.resetInterval,
       resetAnchor: benefit.resetAnchor,

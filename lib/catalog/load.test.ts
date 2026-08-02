@@ -192,9 +192,12 @@ describe('templates', () => {
 describe('the real /catalog directory', () => {
   it('passes validation, templates included', () => {
     // Guards against a bad contribution landing: this is the check CI relies on.
-    expect(() =>
-      loadCatalog({ includeTemplates: true, asOf: parsePlainDate('2026-07-26') }),
-    ).not.toThrow()
+    //
+    // Deliberately no `asOf`: pinning one would make this test fail every time a
+    // contributor re-verifies an entry with a newer date. The future-verified_on rule is
+    // covered against a fixture above, and `pnpm seed` enforces it against the real clock
+    // at deploy time.
+    expect(() => loadCatalog({ includeTemplates: true })).not.toThrow()
   })
 
   it('contains no seedable product with an unverified amount', () => {

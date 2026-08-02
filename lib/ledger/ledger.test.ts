@@ -661,3 +661,117 @@ describe('§3.1 applies_to — a benefit must actually reach the cardholder', ()
     expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
   })
 })
+
+describe('§4.6 estimated-value benefits — a certificate is worth what you got for it', () => {
+  const certificate = benefit({
+    id: 'free-night',
+    maxValue: 20000, // the catalog's estimate, not a cap
+    valueMode: 'estimated',
+    resetType: 'annual',
+    resetAnchor: 'card_open',
+  })
+
+  it('uses the estimate while the certificate is unused', () => {
+    const ledger = ledgerForCardYear(input({ benefits: [certificate] }))!
+    expect(ledger.totals.potential).toBe(20000)
+    expect(ledger.totals.available).toBe(20000)
+    expect(ledger.totals.estimated).toBe(20000)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('replaces the estimate with the realized value once recorded', () => {
+    // A $500 room on a certificate estimated at $200 captured $500, not $200.
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [certificate],
+        redemptions: [{ benefitId: 'free-night', periodStart: d('2026-03-10'), amount: 50000 }],
+      }),
+    )!
+    expect(ledger.totals.captured).toBe(50000)
+    expect(ledger.totals.potential).toBe(50000)
+    expect(ledger.totals.available).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('stops reporting an estimate once a real value is known', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [certificate],
+        redemptions: [{ benefitId: 'free-night', periodStart: d('2026-03-10'), amount: 50000 }],
+      }),
+    )!
+    expect(ledger.totals.estimated).toBe(0)
+    expect(ledger.rows[0]!.usedEstimate).toBe(false)
+    expect(ledger.rows[0]!.isEstimated).toBe(true)
+  })
+
+  it('does not discard value above the estimate, which capping would', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [certificate],
+        redemptions: [{ benefitId: 'free-night', periodStart: d('2026-03-10'), amount: 50000 }],
+      }),
+    )!
+    // The old clamp would have reported 20000 and silently lost $300.
+    expect(ledger.totals.captured).toBeGreaterThan(20000)
+  })
+
+  it('records a realized value below the estimate honestly', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [certificate],
+        redemptions: [{ benefitId: 'free-night', periodStart: d('2026-03-10'), amount: 9000 }],
+      }),
+    )!
+    expect(ledger.totals.captured).toBe(9000)
+    expect(ledger.totals.potential).toBe(9000)
+    expect(ledger.totals.forfeited).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('forfeits the estimate when a certificate expires unused', () => {
+    const expired = benefit({
+      id: 'free-night',
+      maxValue: 20000,
+      valueMode: 'estimated',
+      resetType: 'annual',
+      resetAnchor: 'calendar',
+    })
+    const ledger = ledgerForCardYear(input({ benefits: [expired], asOf: d('2027-02-01') }))!
+    const closed = ledger.rows.find((row) => row.isClosed)
+    expect(closed?.forfeited).toBe(20000)
+    expect(ledger.totals.estimated).toBe(20000)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('still caps a fixed-value credit, which is the whole difference', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [benefit({ id: 'fixed', maxValue: 1500, valueMode: 'fixed' })],
+        redemptions: [{ benefitId: 'fixed', periodStart: d('2026-07-01'), amount: 50000 }],
+      }),
+    )!
+    const july = ledger.rows.find((row) => row.period.periodStart === '2026-07-01')!
+    expect(july.captured).toBe(1500)
+    expect(ledger.totals.estimated).toBe(0)
+  })
+
+  it('treats a benefit with no value_mode as fixed', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        redemptions: [{ benefitId: 'monthly-credit', periodStart: d('2026-07-01'), amount: 50000 }],
+      }),
+    )!
+    const july = ledger.rows.find((row) => row.period.periodStart === '2026-07-01')!
+    expect(july.captured).toBe(1500)
+    expect(july.isEstimated).toBe(false)
+  })
+
+  it('keeps the estimated portion visible when summed across cards', () => {
+    const a = ledgerForCardYear(input({ benefits: [certificate] }))!
+    const b = ledgerForCardYear(input({ benefits: [benefit()] }))!
+    const combined = sumTotals([a.totals, b.totals])
+    expect(combined.estimated).toBe(20000)
+    expect(ledgerInvariantHolds(combined)).toBe(true)
+  })
+})

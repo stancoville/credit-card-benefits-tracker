@@ -20,6 +20,7 @@ import {
   benefitTypeEnum,
   resetAnchorEnum,
   resetTypeEnum,
+  valueModeEnum,
 } from '@/db/schema'
 import { isPlainDate, parsePlainDate, type PlainDate } from '@/lib/date/plain-date'
 
@@ -67,6 +68,13 @@ const creditBenefit = z.strictObject({
   benefit_type: z.literal(benefitTypeEnum.enumValues[0]),
   /** Required for credits: a credit with no value cannot enter ledger math. */
   max_value_cents: cents,
+  /**
+   * `fixed` (default) caps value at max_value_cents. `estimated` means the value is
+   * realized at redemption and max_value_cents is only a planning default (SPEC §4.6).
+   */
+  value_mode: z.enum(valueModeEnum.enumValues).default('fixed'),
+  /** Where an estimate came from. Required when value_mode is 'estimated'. */
+  estimate_basis: z.string().min(1).optional(),
 })
 
 const perkBenefit = z.strictObject({
@@ -91,9 +99,44 @@ const orderedWindow = <
   }
 }
 
+/**
+ * Hard rule 5 keeps invented numbers out of the catalog. An estimate is unavoidably a
+ * judgement, so it ships only with its reasoning attached.
+ *
+ * Applied outside the union rather than inside the credit branch: `discriminatedUnion`
+ * needs plain object schemas, and it is what preserves per-field error messages like
+ * "max_value_cents — money must be integer cents" instead of a bare "Invalid input".
+ */
+function estimateRules(benefit: object, ctx: z.RefinementCtx): void {
+  // Perks have neither field, so both reads are undefined and both checks pass.
+  const { value_mode: valueMode, estimate_basis: estimateBasis } = benefit as {
+    value_mode?: string | undefined
+    estimate_basis?: string | undefined
+  }
+
+  if (valueMode === 'estimated' && estimateBasis === undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['estimate_basis'],
+      message:
+        'an estimated benefit must say where its value came from, e.g. "35k-point award at 0.6c/pt per TPG Aug 2026 valuations"',
+    })
+  }
+  if (valueMode !== 'estimated' && estimateBasis !== undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['estimate_basis'],
+      message: 'estimate_basis only applies when value_mode is "estimated"',
+    })
+  }
+}
+
 export const benefitEntrySchema = z
   .discriminatedUnion('benefit_type', [creditBenefit, perkBenefit])
-  .superRefine(orderedWindow)
+  .superRefine((benefit, ctx) => {
+    orderedWindow(benefit, ctx)
+    estimateRules(benefit, ctx)
+  })
 
 export const productEntrySchema = z
   .strictObject({

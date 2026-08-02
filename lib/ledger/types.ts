@@ -9,7 +9,7 @@
 
 import type { PlainDate } from '@/lib/date/plain-date'
 import type { BenefitPeriod, PeriodBenefit } from '@/lib/periods'
-import type { AppliesTo, BenefitType } from '@/db/schema'
+import type { AppliesTo, BenefitType, ValueMode } from '@/db/schema'
 
 /** A benefit definition plus the fields ledger math needs. Satisfied by a `benefits` row. */
 export interface LedgerBenefit extends PeriodBenefit {
@@ -24,6 +24,11 @@ export interface LedgerBenefit extends PeriodBenefit {
    * user card, so counting it would inflate `potential` with money nobody can claim.
    */
   readonly appliesTo: AppliesTo
+  /**
+   * `fixed` caps value at `maxValue`. `estimated` means the value is realized at
+   * redemption — `maxValue` is only a planning default until then (SPEC §4.6).
+   */
+  readonly valueMode?: ValueMode | undefined
 }
 
 export interface LedgerRedemption {
@@ -73,6 +78,13 @@ export interface LedgerRow {
   /** True when the benefit needs no enrollment, or is enrolled for this period. */
   readonly isEnrolled: boolean
   readonly requiresEnrollment: boolean
+  /** True when this benefit's value is realized at redemption (SPEC §4.6). */
+  readonly isEstimated: boolean
+  /**
+   * True when the figures above rest on the catalog's estimate rather than a value the
+   * household actually recorded. Every total touching one of these must say so.
+   */
+  readonly usedEstimate: boolean
 }
 
 export interface LedgerTotals {
@@ -84,6 +96,12 @@ export interface LedgerTotals {
   readonly availableEnrolled: number
   /** An unenrolled credit is worth $0 until enrolled — the louder state in §6. */
   readonly availableNotEnrolled: number
+  /**
+   * The portion of `potential` that rests on an estimate rather than a realized or capped
+   * amount. Never hidden: a total containing this must be labelled as including estimates
+   * (SPEC §4.6).
+   */
+  readonly estimated: number
 }
 
 /** Ratios, not money. Compared to decide the ahead/behind colour in §6. */

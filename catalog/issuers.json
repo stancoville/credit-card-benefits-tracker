@@ -1,1 +1,5 @@
-[]
+[
+  { "slug": "american-express", "name": "American Express" },
+  { "slug": "chase", "name": "Chase" },
+  { "slug": "capital-one", "name": "Capital One" }
+]

@@ -271,3 +271,50 @@ describe('issuers.json', () => {
     expect(result.success).toBe(false)
   })
 })
+
+describe('§4.6 estimated values must carry their reasoning', () => {
+  it('rejects an estimated benefit with no basis, because that is just a guess', () => {
+    const input = catalogFile({
+      benefits: [creditBenefit({ value_mode: 'estimated' })],
+    })
+    expect(firstErrorPath(input)).toBe('benefits.0.estimate_basis')
+    expect(firstError(input)).toMatch(/where its value came from/)
+  })
+
+  it('accepts an estimated benefit that states its basis', () => {
+    const input = catalogFile({
+      benefits: [
+        creditBenefit({
+          value_mode: 'estimated',
+          estimate_basis: '35k-point award at 0.6c/pt per TPG Aug 2026 valuations',
+        }),
+      ],
+    })
+    expect(catalogFileSchema.safeParse(input).success).toBe(true)
+  })
+
+  it('rejects a basis on a fixed benefit, where it would be misleading', () => {
+    const input = catalogFile({
+      benefits: [creditBenefit({ estimate_basis: 'some reasoning' })],
+    })
+    expect(firstError(input)).toMatch(/only applies when value_mode/)
+  })
+
+  it('defaults value_mode to fixed', () => {
+    const result = catalogFileSchema.parse(catalogFile())
+    const benefit = result.benefits[0]!
+    expect(benefit.benefit_type === 'credit' && benefit.value_mode).toBe('fixed')
+  })
+
+  it('rejects an unknown value_mode', () => {
+    const input = catalogFile({ benefits: [creditBenefit({ value_mode: 'guessed' })] })
+    expect(catalogFileSchema.safeParse(input).success).toBe(false)
+  })
+
+  it('still reports a specific field error rather than a bare union failure', () => {
+    // Regression: a plain z.union collapsed every message to "Invalid input".
+    expect(firstError(catalogFile({ benefits: [creditBenefit({ max_value_cents: 15.5 })] }))).toMatch(
+      /integer cents/,
+    )
+  })
+})

@@ -156,6 +156,15 @@ export const benefits = pgTable(
      */
     unlockSpend: integer('unlock_spend'),
     /**
+     * True when the benefit can be claimed any number of times within its period, with
+     * `max_value` acting as a **per-use** cap rather than a period allowance (SPEC §4.8).
+     *
+     * A Ritz-Carlton property credit pays up to $100 on every qualifying stay. There is no
+     * fixed amount to forfeit, so such a benefit contributes exactly what has actually been
+     * captured and never sits in `available`.
+     */
+    repeatable: boolean('repeatable').notNull().default(false),
+    /**
      * Where an estimated value came from — required when `value_mode = 'estimated'`, and
      * shown wherever the estimate is used. An estimate with no stated basis is a guess.
      */
@@ -196,6 +205,10 @@ export const benefits = pgTable(
       sql`${table.unlockSpend} is null or ${table.unlockSpend} >= 0`,
     ),
     // Only credits carry value, so only credits can have that value gated behind spend.
+    check(
+      'benefits_repeatable_must_be_credit',
+      sql`${table.repeatable} = false or ${table.benefitType} = 'credit'`,
+    ),
     check(
       'benefits_unlock_spend_must_be_credit',
       sql`${table.unlockSpend} is null or ${table.benefitType} = 'credit'`,

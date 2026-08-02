@@ -9,6 +9,7 @@ import type {
   CliffMonth,
   DashboardModel,
   DeadlineGroup,
+  RepeatableItem,
   UnlockableItem,
 } from '@/lib/app/dashboard'
 import type { LedgerTotals } from '@/lib/ledger'
@@ -302,6 +303,53 @@ export function UnlockablePanel({ items }: { items: readonly UnlockableItem[] })
       <p className="text-muted mt-3 text-xs">
         Not counted in the figures above — this only becomes yours after the spend. Mark it
         used once you have it and it will count normally.
+      </p>
+    </Panel>
+  )
+}
+
+/**
+ * Per-use benefits (SPEC §4.8).
+ *
+ * These never appear in the deadline view because nothing about them expires. They are here
+ * to answer a different question: "what could I still be using?"
+ */
+export function RepeatablePanel({ items }: { items: readonly RepeatableItem[] }) {
+  if (items.length === 0) return null
+
+  return (
+    <Panel className="p-4 sm:p-5">
+      <SectionHeading>Every time you use them</SectionHeading>
+
+      <ul className="divide-hairline divide-y">
+        {items.map((item) => (
+          <li
+            key={`${item.cardId}-${item.benefitId}`}
+            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2.5 first:pt-0 last:pb-0"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm">{item.benefitName}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <CardChip label={item.cardLabel} initial={item.ownerInitial} />
+                <span className="text-muted text-xs">
+                  Up to <Figure>{formatCents(item.perUseCap)}</Figure> each time
+                </span>
+              </div>
+            </div>
+            <p className="shrink-0 text-right text-sm">
+              <Money cents={item.captured} className="text-teal font-medium" />
+              <span className="text-muted block text-xs">
+                {item.uses === 0
+                  ? 'not used yet'
+                  : `${item.uses} ${item.uses === 1 ? 'use' : 'uses'} this card year`}
+              </span>
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      <p className="text-muted mt-3 text-xs">
+        No annual cap and nothing to forfeit — the figure is what you have actually captured.
       </p>
     </Panel>
   )

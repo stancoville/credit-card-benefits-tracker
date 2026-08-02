@@ -667,3 +667,55 @@ describe('RULE §4.7: spend-gated value is shown, but not as available', () => {
     }
   })
 })
+
+describe('RULE §4.8: a repeatable benefit pays every time you use it', () => {
+  // Why: a Ritz-Carlton property credit pays up to $100 on every qualifying stay. Treating
+  // that as a period allowance would invent a ceiling the issuer never set, then forfeit
+  // against it — reporting a loss on a benefit that cannot be lost.
+  const perStay = benefit({
+    id: 'per-stay-credit',
+    maxValue: 10000,
+    repeatable: true,
+    resetType: 'annual',
+    resetAnchor: 'card_open',
+  })
+
+  it('assumes nothing before it is used', () => {
+    const result = ledger([perStay])!
+    expect(result.totals.potential).toBe(0)
+    expect(result.totals.available).toBe(0)
+  })
+
+  it('counts each use, well past the per-use cap', () => {
+    const result = ledger([perStay], {
+      redemptions: [
+        { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 10000 },
+        { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 10000 },
+        { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 10000 },
+      ],
+    })!
+    expect(result.totals.captured).toBe(30000)
+    expect(ledgerInvariantHolds(result.totals)).toBe(true)
+  })
+
+  it('never forfeits and never expires', () => {
+    const result = ledger([perStay], { asOf: d('2027-06-01') })!
+    expect(result.totals.forfeited).toBe(0)
+    const model = dashboard({ cards: [card({ benefits: [perStay] })] })
+    expect(model.valueAtRisk).toBe(0)
+    expect(model.cliffStrip.every((month) => month.total === 0)).toBe(true)
+  })
+
+  it('is surfaced separately so repeat use can be nudged', () => {
+    const model = dashboard({
+      cards: [card({ benefits: [perStay] })],
+      redemptions: [
+        { userCardId: 'card-1', benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 9000 },
+      ],
+    })
+    expect(model.repeatable).toHaveLength(1)
+    expect(model.repeatable[0]!.perUseCap).toBe(10000)
+    expect(model.repeatable[0]!.captured).toBe(9000)
+    expect(model.repeatable[0]!.uses).toBe(1)
+  })
+})

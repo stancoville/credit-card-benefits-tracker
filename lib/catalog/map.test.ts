@@ -91,6 +91,7 @@ describe('toBenefitRow', () => {
       valueMode: 'fixed',
       estimateBasis: null,
       unlockSpend: null,
+      repeatable: false,
       resetType: 'monthly',
       resetInterval: 1,
       resetAnchor: 'calendar',
@@ -188,5 +189,17 @@ describe('§4.7 spend-gated benefits carry their threshold through', () => {
 
   it('leaves an unconditional benefit with a null threshold', () => {
     expect(toBenefitRow(parse(base).benefits[0]!, PRODUCT_ID).unlockSpend).toBeNull()
+  })
+})
+
+describe('§4.8 repeatable benefits carry their per-use flag through', () => {
+  it('maps repeatable onto the row', () => {
+    const perStay = { ...base.benefits[0]!, slug: 'per-stay-credit', repeatable: true }
+    const file = parse({ ...base, benefits: [perStay] })
+    expect(toBenefitRow(file.benefits[0]!, PRODUCT_ID).repeatable).toBe(true)
+  })
+
+  it('defaults to false', () => {
+    expect(toBenefitRow(parse(base).benefits[0]!, PRODUCT_ID).repeatable).toBe(false)
   })
 })

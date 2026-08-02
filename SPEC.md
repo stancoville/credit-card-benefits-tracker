@@ -322,6 +322,26 @@ was met. Reporting a loss it cannot substantiate would be worse than reporting n
 honest cost being that an unlocked-but-unused award is not warned about. Tracking spend, or
 letting the household mark a threshold as met, would close that gap; neither is in v1.
 
+### 4.8 Repeatable benefits pay per use, not per period
+
+Some benefits have no period allowance at all. A Ritz-Carlton property credit pays up to
+$100 on **every** qualifying stay — take four stays and it pays four times.
+`benefits.repeatable` marks these, and `max_value` becomes a **per-use cap**.
+
+Treating that cap as a period allowance would invent a ceiling the issuer never set, and
+then forfeit against it — reporting a loss on a benefit that cannot be lost. So:
+
+- `potential` for such a period is exactly what has been **captured**. Nothing is assumed.
+- `available` and `forfeited` are always 0. There is no fixed amount to lose, so it never
+  appears in the hero, the deadline groups, or the cliff strip.
+- The write path caps each *redemption* at `max_value`, not the period total. Recording a
+  fourth $100 stay is as valid as the first.
+- `repeatableRows` reports the per-use cap, the captured total, and the number of uses, so
+  the UI can nudge repeat use rather than implying a spent allowance.
+
+The period on such a benefit is a **reporting window** — it groups uses for "what did this
+card return this year" — not an issuer limit.
+
 ### 4.5 Timezone is per household, not per user
 
 `households.timezone` is the single source (resolving the first item in §10). This is a

@@ -294,7 +294,11 @@ export async function markUsed(
     )
 
   const maxValue = benefit.maxValue ?? 0
-  const remaining = maxValue - (used?.total ?? 0)
+  /**
+   * SPEC §4.8: for a repeatable benefit `max_value` caps a single use, not the period, so
+   * a fourth qualifying stay is as claimable as the first.
+   */
+  const remaining = benefit.repeatable ? maxValue : maxValue - (used?.total ?? 0)
   if (remaining <= 0) {
     return { ok: false, error: 'This period is already fully used.' }
   }
@@ -314,7 +318,12 @@ export async function markUsed(
   if (amount <= 0) return { ok: false, error: 'Enter an amount greater than zero.' }
   // §4.3: captured can never exceed max_value, or `available` goes negative.
   if (amount > remaining) {
-    return { ok: false, error: `Only ${formatCents(remaining)} is left in this period.` }
+    return {
+      ok: false,
+      error: benefit.repeatable
+        ? `This benefit pays at most ${formatCents(remaining)} per use. Record each use separately.`
+        : `Only ${formatCents(remaining)} is left in this period.`,
+    }
   }
 
   await db.insert(redemptions).values({

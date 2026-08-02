@@ -19,7 +19,7 @@
       "requires_enrollment": false,
       "applies_to": "primary",
       "merchant_scope": "One night at a participating hotel with a redemption level at or under 85,000 points",
-      "notes": "Issued each year after the card renewal month and expires one year from issuance. The estimate is a ceiling, not a typical outcome — most redemptions land below the 85,000-point cap.",
+      "notes": "Issued each year after the card renewal month and expires one year from issuance. The estimate is a ceiling, not a typical outcome \u2014 most redemptions land below the 85,000-point cap.",
       "source_url": "https://www.americanexpress.com/us/credit-cards/card/marriott-bonvoy-brilliant/",
       "verified_on": "2026-08-02",
       "effective_from": "2023-09-01"
@@ -55,12 +55,15 @@
     {
       "slug": "ritz-st-regis-property-credit",
       "name": "Ritz-Carlton and St. Regis property credit",
-      "benefit_type": "perk",
-      "reset_type": "one_time",
+      "benefit_type": "credit",
+      "max_value_cents": 10000,
+      "repeatable": true,
+      "reset_type": "annual",
       "reset_anchor": "card_open",
       "requires_enrollment": false,
       "applies_to": "primary",
-      "notes": "Up to $100 in qualifying charges on a direct-booked stay of two nights or more at The Ritz-Carlton or St. Regis. Recorded as a perk rather than a credit because it is per-stay with no periodic allowance, which the period engine cannot express. TODO: confirm whether an annual cap exists; if it does this becomes a credit.",
+      "merchant_scope": "Qualifying charges on a direct-booked stay of two nights or more at The Ritz-Carlton or St. Regis, using a qualifying rate",
+      "notes": "Up to $100 per qualifying stay, claimable on every eligible stay \u2014 max_value_cents is a per-use cap, not an annual allowance (SPEC \u00a74.8). The annual card-year period here is a reporting window for reviewing what was captured, not an issuer limit.",
       "source_url": "https://www.americanexpress.com/us/credit-cards/card/marriott-bonvoy-brilliant/",
       "verified_on": "2026-08-02",
       "effective_from": "2023-09-01"

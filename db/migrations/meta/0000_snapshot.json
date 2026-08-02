@@ -1,5 +1,5 @@
 {
-  "id": "9b1339b8-380f-47bd-ba51-0c1ad6f5491b",
+  "id": "5285bc1c-7992-478b-9dad-d0011f74a67d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -148,6 +148,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "repeatable": {
+          "name": "repeatable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "estimate_basis": {
           "name": "estimate_basis",
@@ -305,6 +312,10 @@
         "benefits_unlock_spend_non_negative": {
           "name": "benefits_unlock_spend_non_negative",
           "value": "\"benefits\".\"unlock_spend\" is null or \"benefits\".\"unlock_spend\" >= 0"
+        },
+        "benefits_repeatable_must_be_credit": {
+          "name": "benefits_repeatable_must_be_credit",
+          "value": "\"benefits\".\"repeatable\" = false or \"benefits\".\"benefit_type\" = 'credit'"
         },
         "benefits_unlock_spend_must_be_credit": {
           "name": "benefits_unlock_spend_must_be_credit",

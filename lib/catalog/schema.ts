@@ -80,6 +80,11 @@ const creditBenefit = z.strictObject({
    * (SPEC §4.7). Omit for unconditional benefits.
    */
   unlock_spend_cents: cents.optional(),
+  /**
+   * True when max_value_cents is a per-use cap and the benefit can be claimed repeatedly
+   * within its period (SPEC §4.8).
+   */
+  repeatable: z.boolean().default(false),
 })
 
 const perkBenefit = z.strictObject({

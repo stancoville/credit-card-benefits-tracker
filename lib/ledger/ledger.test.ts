@@ -843,3 +843,75 @@ describe('§4.7 spend-gated value is unlockable, not available', () => {
     expect(ledgerInvariantHolds(combined)).toBe(true)
   })
 })
+
+describe('§4.8 repeatable benefits pay per use, not per period', () => {
+  // Why: a Ritz-Carlton property credit pays up to $100 on every qualifying stay. Treating
+  // that $100 as a period allowance would invent a ceiling the issuer never set, then
+  // forfeit against it — reporting a loss for a benefit that cannot be lost.
+  const perStay = benefit({
+    id: 'per-stay-credit',
+    maxValue: 10000,
+    repeatable: true,
+    resetType: 'annual',
+    resetAnchor: 'card_open',
+  })
+
+  it('contributes nothing until it is used', () => {
+    const ledger = ledgerForCardYear(input({ benefits: [perStay] }))!
+    expect(ledger.totals.potential).toBe(0)
+    expect(ledger.totals.available).toBe(0)
+    expect(ledger.totals.forfeited).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('counts every use, past the per-use cap in aggregate', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [perStay],
+        redemptions: [
+          { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 10000 },
+          { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 10000 },
+          { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 8000 },
+        ],
+      }),
+    )!
+    // Three stays, $280 captured — a period cap would have stopped at $100.
+    expect(ledger.totals.captured).toBe(28000)
+    expect(ledger.totals.potential).toBe(28000)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('never forfeits, because there is no fixed allowance to lose', () => {
+    const ledger = ledgerForCardYear(input({ benefits: [perStay], asOf: d('2027-06-01') }))!
+    expect(ledger.totals.forfeited).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('reports the per-use cap and the use count for the UI', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        benefits: [perStay],
+        redemptions: [
+          { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 10000 },
+          { benefitId: 'per-stay-credit', periodStart: d('2026-03-10'), amount: 7500 },
+        ],
+      }),
+    )!
+    expect(ledger.repeatableRows).toHaveLength(1)
+    expect(ledger.repeatableRows[0]!.perUseCap).toBe(10000)
+    expect(ledger.repeatableRows[0]!.captured).toBe(17500)
+    expect(ledger.repeatableRows[0]!.uses).toBe(2)
+  })
+
+  it('leaves ordinary capped credits alone', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        redemptions: [
+          { benefitId: 'monthly-credit', periodStart: d('2026-07-01'), amount: 5000 },
+        ],
+      }),
+    )!
+    expect(ledger.rows.find((r) => r.period.periodStart === '2026-07-01')!.captured).toBe(1500)
+    expect(ledger.repeatableRows).toEqual([])
+  })
+})

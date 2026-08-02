@@ -34,6 +34,11 @@ export interface LedgerBenefit extends PeriodBenefit {
    * omitted means unconditional.
    */
   readonly unlockSpend?: number | null | undefined
+  /**
+   * True when `maxValue` is a per-use cap and the benefit can be claimed repeatedly within
+   * its period (SPEC §4.8). Such a benefit has no fixed allowance to forfeit.
+   */
+  readonly repeatable?: boolean | undefined
 }
 
 export interface LedgerRedemption {
@@ -124,6 +129,18 @@ export interface CapturePace {
   readonly status: 'ahead' | 'behind' | 'unknown'
 }
 
+/** A benefit that pays out per use rather than per period (SPEC §4.8). */
+export interface RepeatableRow {
+  readonly benefitId: string
+  readonly period: BenefitPeriod
+  /** The most one use can pay out. */
+  readonly perUseCap: number
+  /** What has actually been captured in this period so far. */
+  readonly captured: number
+  /** How many redemptions have been recorded in this period. */
+  readonly uses: number
+}
+
 /** A period whose value is real but still locked behind a spend threshold (SPEC §4.7). */
 export interface UnlockableRow {
   readonly benefitId: string
@@ -141,6 +158,11 @@ export interface CardYearLedger {
   readonly rows: readonly LedgerRow[]
   /** Not included in `rows` — these contribute to `unlockable`, not to `potential`. */
   readonly unlockableRows: readonly UnlockableRow[]
+  /**
+   * Per-use benefits (SPEC §4.8). Their captured value *is* in `rows` and `potential`;
+   * this list exists so the UI can show the per-use cap and nudge repeat use.
+   */
+  readonly repeatableRows: readonly RepeatableRow[]
   readonly totals: LedgerTotals
   /**
    * Σ `max_value` over periods of excluded benefits. Reported separately and never folded

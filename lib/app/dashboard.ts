@@ -144,6 +144,19 @@ export interface DashboardModel {
    * the hero or the four-way split, because it is not value you can simply go and claim.
    */
   readonly unlockable: readonly UnlockableItem[]
+  /** Per-use benefits worth nudging repeat use of (SPEC §4.8). */
+  readonly repeatable: readonly RepeatableItem[]
+}
+
+export interface RepeatableItem {
+  readonly cardId: string
+  readonly benefitId: string
+  readonly benefitName: string
+  readonly cardLabel: string
+  readonly ownerInitial: string
+  readonly perUseCap: number
+  readonly captured: number
+  readonly uses: number
 }
 
 export interface UnlockableItem {
@@ -202,6 +215,8 @@ function collectRows(input: DashboardInput, horizonDays: number): DeadlineRow[] 
       if (!benefitAppliesToCard(benefit.appliesTo, card.isAuthorizedUser)) continue
       // Spend-gated value is not "about to evaporate" — it is not claimable yet (§4.7).
       if (benefit.unlockSpend != null) continue
+      // A per-use benefit has no fixed allowance, so nothing about it expires (§4.8).
+      if (benefit.repeatable === true) continue
 
       const maxValue = benefit.maxValue ?? 0
 
@@ -304,6 +319,7 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
 
   const cardSummaries: CardSummary[] = []
   const unlockable: UnlockableItem[] = []
+  const repeatable: RepeatableItem[] = []
   let excluded = 0
   let orphanCount = 0
   let orphanAmount = 0
@@ -348,6 +364,20 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
     excluded += ledger.excluded
     orphanCount += ledger.orphanedRedemptions.count
     orphanAmount += ledger.orphanedRedemptions.amount
+
+    for (const repeat of ledger.repeatableRows) {
+      const definition = card.benefits.find((entry) => entry.id === repeat.benefitId)
+      repeatable.push({
+        cardId: card.id,
+        benefitId: repeat.benefitId,
+        benefitName: definition?.name ?? repeat.benefitId,
+        cardLabel: cardLabel(card),
+        ownerInitial: initialOf(card.ownerDisplayName),
+        perUseCap: repeat.perUseCap,
+        captured: repeat.captured,
+        uses: repeat.uses,
+      })
+    }
 
     for (const locked of ledger.unlockableRows) {
       const definition = card.benefits.find((entry) => entry.id === locked.benefitId)
@@ -397,5 +427,6 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
     cards: cardSummaries,
     orphanedRedemptions: { count: orphanCount, amount: orphanAmount },
     unlockable: unlockable.sort((a, b) => b.value - a.value),
+    repeatable: repeatable.sort((a, b) => b.perUseCap - a.perUseCap),
   }
 }

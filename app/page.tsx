@@ -20,6 +20,7 @@ import {
   DeadlineGroups,
   Hero,
   LedgerBar,
+  RepeatablePanel,
   UnlockablePanel,
 } from '@/components/dashboard-parts'
 import { EmptyState, Figure, Money, SectionHeading } from '@/components/primitives'
@@ -89,6 +90,8 @@ export default async function DashboardPage() {
       </section>
 
       <UnlockablePanel items={model.unlockable} />
+
+      <RepeatablePanel items={model.repeatable} />
 
       {model.orphanedRedemptions.count > 0 ? (
         <p className="border-maroon bg-surface text-ink border-l-2 px-4 py-3 text-sm">

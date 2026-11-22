@@ -13,7 +13,7 @@ import { isPeriodClosed, periodFor } from '@/lib/periods'
 import { Figure, Money, Panel, SectionHeading, formatDate } from '@/components/primitives'
 import { LedgerBar } from '@/components/dashboard-parts'
 import { CloseCard, DeleteCard, ExclusionToggle } from './card-admin-forms'
-import { BenefitRowActions } from '@/components/benefit-row-actions'
+import { BenefitRowActions, MarkUnusedButton } from '@/components/benefit-row-actions'
 import { PeriodGrid, PeriodGridLegend } from '@/components/period-grid'
 import {
   CADENCES,
@@ -186,7 +186,15 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
                               )
                               .reduce((sum, r) => sum + r.amount, 0)
                           : 0
-                        const remaining = Math.max(0, (benefit.maxValue ?? 0) - captured)
+                        // §4.6: a free night is one certificate worth what you got for it.
+                        // Once recorded nothing is left, whatever the value.
+                        const estimated = benefit.valueMode === 'estimated' && !benefit.repeatable
+                        const remaining = estimated
+                          ? captured > 0
+                            ? 0
+                            : (benefit.maxValue ?? 0)
+                          : Math.max(0, (benefit.maxValue ?? 0) - captured)
+                        const grid = hasPeriodGrid(cadenceOf(benefit))
                         const needsEnrollment =
                           benefit.requiresEnrollment &&
                           period !== null &&
@@ -205,12 +213,30 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
                                   {benefit.name}
                                 </p>
                                 <p className="text-muted mt-0.5 text-xs">
-                                  {captured > 0 ? (
+                                  {estimated ? (
+                                    captured > 0 ? (
+                                      <>
+                                        Used · worth{' '}
+                                        <Money cents={captured} className="text-teal font-medium" />{' '}
+                                        ·{' '}
+                                      </>
+                                    ) : (
+                                      <span title={benefit.estimateBasis ?? undefined}>
+                                        Worth what you use it for, about{' '}
+                                        <Money cents={benefit.maxValue ?? 0} /> ·{' '}
+                                      </span>
+                                    )
+                                  ) : (
                                     <>
-                                      <Money cents={remaining} className="text-ink" /> left of{' '}
+                                      {captured > 0 ? (
+                                        <>
+                                          <Money cents={remaining} className="text-ink" /> left
+                                          of{' '}
+                                        </>
+                                      ) : null}
+                                      <Money cents={benefit.maxValue ?? 0} /> ·{' '}
                                     </>
-                                  ) : null}
-                                  <Money cents={benefit.maxValue ?? 0} /> ·{' '}
+                                  )}
                                   {resetSummary(benefit, card.openedOn)}
                                   {benefit.requiresEnrollment ? ' · needs enrollment' : ''}
                                 </p>
@@ -261,6 +287,14 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
                                     remaining={remaining}
                                     needsEnrollment={needsEnrollment}
                                     asOf={asOf}
+                                    isEstimated={estimated}
+                                  />
+                                ) : null}
+                                {period && captured > 0 && !excluded && !grid ? (
+                                  <MarkUnusedButton
+                                    cardId={card.id}
+                                    benefitId={benefit.id}
+                                    periodStart={period.periodStart}
                                   />
                                 ) : null}
                                 {applies ? (

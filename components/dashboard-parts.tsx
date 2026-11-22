@@ -240,6 +240,7 @@ export function DeadlineGroups({
                     remaining={row.remaining}
                     needsEnrollment={row.needsEnrollment}
                     asOf={asOf}
+                    isEstimated={row.isEstimated}
                   />
                 </div>
               </li>

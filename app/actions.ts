@@ -343,11 +343,25 @@ export async function markUsed(
     )
 
   const maxValue = benefit.maxValue ?? 0
+  const alreadyUsed = used?.total ?? 0
+  /**
+   * SPEC §4.6: an estimated benefit (a free night award) is worth what the household got
+   * for it, so the value is entered and never capped by the catalog's estimate. It is one
+   * certificate per period, so a second entry is refused rather than added on top.
+   */
+  const estimated = benefit.valueMode === 'estimated' && !benefit.repeatable
+  if (estimated && alreadyUsed > 0) {
+    return {
+      ok: false,
+      error: `Already recorded as worth ${formatCents(alreadyUsed)}. Mark it unused first to change the value.`,
+    }
+  }
+
   /**
    * SPEC §4.8: for a repeatable benefit `max_value` caps a single use, not the period, so
    * a fourth qualifying stay is as claimable as the first.
    */
-  const remaining = benefit.repeatable ? maxValue : maxValue - (used?.total ?? 0)
+  const remaining = benefit.repeatable || estimated ? maxValue : maxValue - alreadyUsed
   if (remaining <= 0) {
     return { ok: false, error: 'This period is already fully used.' }
   }
@@ -362,11 +376,14 @@ export async function markUsed(
         error: error instanceof InvalidAmountError ? error.message : 'Check the amount.',
       }
     }
+  } else if (estimated) {
+    return { ok: false, error: 'Enter what it was worth — what the room would have cost.' }
   }
 
   if (amount <= 0) return { ok: false, error: 'Enter an amount greater than zero.' }
-  // §4.3: captured can never exceed max_value, or `available` goes negative.
-  if (amount > remaining) {
+  // §4.3: captured can never exceed max_value, or `available` goes negative. Estimated
+  // benefits are exempt: the realized value replaces the estimate in `potential` (§4.6).
+  if (!estimated && amount > remaining) {
     return {
       ok: false,
       error: benefit.repeatable
@@ -388,7 +405,12 @@ export async function markUsed(
   revalidatePath('/')
   revalidatePath('/cards')
   revalidatePath(`/cards/${cardId}`)
-  return { ok: true, message: `Marked used — ${formatCents(amount)}.` }
+  return {
+    ok: true,
+    message: estimated
+      ? `Marked used — worth ${formatCents(amount)}.`
+      : `Marked used — ${formatCents(amount)}.`,
+  }
 }
 
 /**

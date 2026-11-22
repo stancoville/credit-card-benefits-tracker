@@ -92,6 +92,11 @@ export interface DeadlineRow {
    * unused and its action is "Enroll", not "Mark used" (SPEC §6).
    */
   readonly needsEnrollment: boolean
+  /**
+   * Its value is entered at redemption, not fixed (SPEC §4.6), so "Mark used" asks what it
+   * was worth and `remaining` is the catalog's estimate.
+   */
+  readonly isEstimated: boolean
 }
 
 /** Rows sharing a deadline, soonest first (SPEC §6 deadline groups). */
@@ -219,13 +224,18 @@ function collectRows(input: DashboardInput, horizonDays: number): DeadlineRow[] 
       if (benefit.repeatable === true) continue
 
       const maxValue = benefit.maxValue ?? 0
+      const isEstimated = benefit.valueMode === 'estimated'
 
       for (const period of periodsInRange(benefit, card.openedOn, asOf, horizonEnd, context)) {
         // Closed periods are history: they belong to `forfeited`, not to an action list.
         if (isPeriodClosed(period, asOf)) continue
 
         const mapKey = key(card.id, benefit.id, period.periodStart)
-        const captured = Math.min(redeemed.get(mapKey) ?? 0, maxValue)
+        const recorded = redeemed.get(mapKey) ?? 0
+        // §4.6: an estimated benefit is one certificate. Once recorded — for any value —
+        // nothing is left to claim, even if the room cost less than the estimate.
+        if (isEstimated && recorded > 0) continue
+        const captured = Math.min(recorded, maxValue)
         const remaining = maxValue - captured
         if (remaining <= 0) continue
 
@@ -246,6 +256,7 @@ function collectRows(input: DashboardInput, horizonDays: number): DeadlineRow[] 
           daysLeft,
           isAtRisk: daysLeft <= AT_RISK_DAYS,
           needsEnrollment: benefit.requiresEnrollment && !enrolled.has(mapKey),
+          isEstimated,
         })
       }
     }

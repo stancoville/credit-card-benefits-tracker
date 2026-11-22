@@ -173,6 +173,7 @@ describe('deadline groups', () => {
         daysLeft: 36,
         isAtRisk: false,
         needsEnrollment: false,
+        isEstimated: false,
       },
       {
         cardId: 'c',
@@ -188,6 +189,7 @@ describe('deadline groups', () => {
         daysLeft: 5,
         isAtRisk: true,
         needsEnrollment: false,
+        isEstimated: false,
       },
     ])
     expect(rows.map((group) => group.periodEnd)).toEqual(['2026-07-31', '2026-08-31'])
@@ -434,5 +436,38 @@ describe('§3.1 applies_to on the deadline list', () => {
       input({ cards: [card({ isAuthorizedUser: true, benefits: [primaryOnly] })] }),
     )
     expect(model.cliffStrip.every((month) => month.total === 0)).toBe(true)
+  })
+})
+
+describe('§4.6 estimated benefits in the deadline list', () => {
+  const night = benefit({
+    id: 'free-night',
+    name: 'Free night',
+    maxValue: 50000, // an estimate, not a cap
+    valueMode: 'estimated',
+    resetType: 'annual',
+    resetAnchor: 'card_open',
+  })
+  // The certificate period runs 2026-03-10 → 2027-03-09; a week out, it is in the list.
+  const asOf = d('2027-03-02')
+
+  it('lists an unused certificate at its estimate, flagged as estimated', () => {
+    const model = buildDashboard(input({ cards: [card({ benefits: [night] })], asOf }))
+    const row = model.deadlineGroups.flatMap((group) => group.rows)[0]!
+    expect(row.remaining).toBe(50000)
+    expect(row.isEstimated).toBe(true)
+  })
+
+  it('drops the certificate once recorded, even for less than the estimate', () => {
+    const model = buildDashboard(
+      input({
+        cards: [card({ benefits: [night] })],
+        asOf,
+        redemptions: [
+          { userCardId: 'card-1', benefitId: 'free-night', periodStart: d('2026-03-10'), amount: 18000 },
+        ],
+      }),
+    )
+    expect(model.deadlineGroups.flatMap((group) => group.rows)).toEqual([])
   })
 })

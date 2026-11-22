@@ -374,7 +374,13 @@ correctness constraint, not a preference: `period_start` is a shared key, so two
 resolving `asOf` in different zones could compute different keys for the same period and
 write duplicate or unreachable redemption rows.
 
-Fee recovery (`captured − annual_fee`) is a drill-in figure, not a dashboard figure.
+Fee recovery (`captured − annual_fee`) is shown per card on the drill-in and, as one row
+per card, on the dashboard's fee recovery panel — never summed into a single household
+figure, which would let one card's surplus hide another's shortfall.
+
+_Amended 2026-11-22: this was "a drill-in figure, not a dashboard figure." The owner asked
+for it on the dashboard to answer job 2 in §1 ("is this card earning its fee?") at a glance.
+A shortfall renders in ink, not maroon — an unrecovered fee is not forfeited value._
 
 **Capture pace** = `captured / potential` compared against `elapsed / 365` of the card
 year. Ahead → teal, behind → amber. Implemented against the card year's *true* length

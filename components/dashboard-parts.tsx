@@ -5,7 +5,9 @@
  * maroon = forfeited.
  */
 
+import Link from 'next/link'
 import type {
+  CardSummary,
   CliffMonth,
   DashboardModel,
   DeadlineGroup,
@@ -41,7 +43,8 @@ export function Hero({ model }: { model: DashboardModel }) {
 
       {nearestCliff ? (
         <p className="text-paper/80 mt-4 text-sm">
-          Next up <Figure className="text-amber font-medium">{formatDate(nearestCliff.date)}</Figure>
+          Next up{' '}
+          <Figure className="text-amber font-medium">{formatDate(nearestCliff.date)}</Figure>
           {' — '}
           <Figure className="font-medium">{formatCents(nearestCliff.amount)}</Figure> across{' '}
           {nearestCliff.count} {nearestCliff.count === 1 ? 'benefit' : 'benefits'}
@@ -143,13 +146,22 @@ export function CliffStrip({ months }: { months: readonly CliffMonth[] }) {
       <SectionHeading>Next 12 months</SectionHeading>
 
       {hasAny ? (
-        <ol className="flex h-36 items-end gap-1.5 sm:gap-2">
+        <ol className="flex h-40 items-end gap-1 sm:gap-2">
           {months.map((month, index) => {
             const height = month.total === 0 ? 0 : Math.max(3, (month.total / peak) * 100)
             return (
-              <li key={month.month} className="flex h-full flex-1 flex-col justify-end gap-1.5">
-                <span className="figure text-muted text-center text-[10px] leading-none">
+              <li
+                key={month.month}
+                className="flex h-full min-w-0 flex-1 flex-col justify-end gap-1.5"
+              >
+                {/* Twelve dollar figures don't fit side by side on a phone; the bar heights
+                    carry the shape there, and each bar's title and the sr-only text carry
+                    the figure. */}
+                <span className="figure text-muted hidden text-center text-[10px] leading-none whitespace-nowrap sm:block">
                   {month.total > 0 ? formatCents(month.total) : ''}
+                </span>
+                <span className="sr-only">
+                  {formatMonth(month.month, { withYear: true })}: {formatCents(month.total)}
                 </span>
                 <div className="flex h-full items-end">
                   <div
@@ -175,6 +187,83 @@ export function CliffStrip({ months }: { months: readonly CliffMonth[] }) {
           Nothing scheduled to expire in the next year.
         </p>
       )}
+    </Panel>
+  )
+}
+
+/**
+ * Is each card paying for itself? Captured this card year against its annual fee, one row
+ * per card, most behind first (SPEC §4, amended 2026-11-22).
+ *
+ * The bar's track is the fee and the teal fill is what's been captured toward it. A net
+ * shortfall is shown in ink, not maroon: maroon means forfeited, and an unrecovered fee
+ * isn't forfeited — the card year may still be young.
+ */
+export function FeeRecoveryPanel({ cards }: { cards: readonly CardSummary[] }) {
+  const rows = [...cards].sort((a, b) => a.feeRecovery - b.feeRecovery)
+  const totalFees = cards.reduce((sum, summary) => sum + summary.card.annualFee, 0)
+  const totalCaptured = cards.reduce((sum, summary) => sum + summary.totals.captured, 0)
+
+  return (
+    <Panel className="p-4 sm:p-5">
+      <SectionHeading>Fee recovery</SectionHeading>
+
+      <ul className="space-y-3">
+        {rows.map((summary) => {
+          const { card, feeRecovery } = summary
+          const captured = summary.totals.captured
+          const fee = card.annualFee
+          const filled = fee === 0 ? 100 : Math.min(100, (captured / fee) * 100)
+          const label = card.nickname ?? card.productName
+          return (
+            <li key={card.id}>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <Link
+                  href={`/cards/${card.id}`}
+                  className="hover:text-ink truncate underline-offset-2 hover:underline"
+                >
+                  {label}
+                </Link>
+                <span
+                  className={`figure shrink-0 font-medium ${feeRecovery >= 0 ? 'text-teal' : 'text-ink'}`}
+                >
+                  {feeRecovery > 0 ? '+' : ''}
+                  {formatCents(feeRecovery)}
+                </span>
+              </div>
+              <div
+                className="bg-hairline mt-1.5 h-2 w-full overflow-hidden rounded-sm"
+                role="img"
+                aria-label={
+                  fee === 0
+                    ? `${label}: no annual fee, ${formatCents(captured)} captured`
+                    : `${label}: ${formatCents(captured)} captured of a ${formatCents(fee)} fee`
+                }
+              >
+                <div className="bg-teal h-full" style={{ width: `${filled.toFixed(2)}%` }} />
+              </div>
+              <p className="text-muted mt-1 text-xs">
+                {fee === 0 ? (
+                  <>
+                    No annual fee · <Figure>{formatCents(captured)}</Figure> captured
+                  </>
+                ) : (
+                  <>
+                    <Figure>{formatCents(captured)}</Figure> of <Figure>{formatCents(fee)}</Figure>{' '}
+                    fee
+                  </>
+                )}
+              </p>
+            </li>
+          )
+        })}
+      </ul>
+
+      <p className="text-muted mt-4 text-xs">
+        Captured this card year minus each card&rsquo;s annual fee. Across all cards:{' '}
+        <Figure className="text-ink">{formatCents(totalCaptured)}</Figure> of{' '}
+        <Figure className="text-ink">{formatCents(totalFees)}</Figure> in fees.
+      </p>
     </Panel>
   )
 }
@@ -302,8 +391,8 @@ export function UnlockablePanel({ items }: { items: readonly UnlockableItem[] })
       </ul>
 
       <p className="text-muted mt-3 text-xs">
-        Not counted in the figures above — this only becomes yours after the spend. Mark it
-        used once you have it and it will count normally.
+        Not counted in the figures above — this only becomes yours after the spend. Mark it used
+        once you have it and it will count normally.
       </p>
     </Panel>
   )

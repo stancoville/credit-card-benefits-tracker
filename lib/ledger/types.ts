@@ -178,7 +178,7 @@ export interface CardYearLedger {
     readonly count: number
     readonly amount: number
   }
-  /** `captured − annualFee`. A drill-in figure, never a dashboard figure (SPEC §4). */
+  /** `captured − annualFee`. Per card only, never summed across cards (SPEC §4). */
   readonly feeRecovery: number
   readonly capturePace: CapturePace
 }

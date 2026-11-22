@@ -17,6 +17,7 @@ import {
 import { NeedsDatabase } from '@/components/needs-database'
 import {
   CliffStrip,
+  FeeRecoveryPanel,
   DeadlineGroups,
   Hero,
   LedgerBar,
@@ -69,8 +70,10 @@ export default async function DashboardPage() {
           excluded={model.excluded}
           totalAnnualFees={model.totalAnnualFees}
         />
-        <CliffStrip months={model.cliffStrip} />
+        <FeeRecoveryPanel cards={model.cards} />
       </div>
+
+      <CliffStrip months={model.cliffStrip} />
 
       <section>
         <SectionHeading>Deadlines</SectionHeading>
@@ -97,8 +100,10 @@ export default async function DashboardPage() {
         <p className="border-maroon bg-surface text-ink border-l-2 px-4 py-3 text-sm">
           <Money cents={model.orphanedRedemptions.amount} className="font-medium" /> in{' '}
           {model.orphanedRedemptions.count} redemption
-          {model.orphanedRedemptions.count === 1 ? '' : 's'} does not line up with any current
-          period, so it is not counted above. This usually means a card&rsquo;s open date was
+          {model.orphanedRedemptions.count === 1 ? '' : 's'}{' '}
+          {model.orphanedRedemptions.count === 1 ? 'does' : 'do'} not line up with any current
+          period, so {model.orphanedRedemptions.count === 1 ? 'it is' : 'they are'} not counted
+          above. This usually means a card&rsquo;s open date was
           edited after the fact.
         </p>
       ) : null}

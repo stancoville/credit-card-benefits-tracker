@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Archivo, IBM_Plex_Mono, Inter } from 'next/font/google'
 import Link from 'next/link'
+import { MainNav } from '@/components/main-nav'
 import './globals.css'
 
 const archivo = Archivo({
@@ -55,14 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="display text-ink text-lg font-semibold">
               Benefits
             </Link>
-            <div className="flex gap-4 text-sm">
-              <Link href="/" className="hover:text-ink text-muted">
-                Deadlines
-              </Link>
-              <Link href="/cards" className="hover:text-ink text-muted">
-                Cards
-              </Link>
-            </div>
+            <MainNav />
           </nav>
         </header>
 

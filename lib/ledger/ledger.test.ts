@@ -915,3 +915,34 @@ describe('§4.8 repeatable benefits pay per use, not per period', () => {
     expect(ledger.repeatableRows).toEqual([])
   })
 })
+
+describe('orphans vs periods owned by the next card year (§4.1)', () => {
+  it('does not flag a redemption in a period that starts this card year but ends in the next', () => {
+    // Card opened 2021-11-24, so the card year running at 2026-11-22 is
+    // 2025-11-24 → 2026-11-23. The November 2026 monthly period ends Nov 30 — after the
+    // card year — so §4.1 gives it to the next card year. Its redemption is real, not lost.
+    const ledger = ledgerForCardYear(
+      input({
+        card: { openedOn: d('2021-11-24'), annualFee: 65000 },
+        asOf: d('2026-11-22'),
+        redemptions: [{ benefitId: 'monthly-credit', periodStart: d('2026-11-01'), amount: 1500 }],
+      }),
+    )!
+    expect(ledger.rows.some((row) => row.period.periodStart === '2026-11-01')).toBe(false)
+    expect(ledger.orphanedRedemptions.count).toBe(0)
+    expect(ledgerInvariantHolds(ledger.totals)).toBe(true)
+  })
+
+  it('counts that redemption in the next card year instead', () => {
+    const ledger = ledgerForCardYear(
+      input({
+        card: { openedOn: d('2021-11-24'), annualFee: 65000 },
+        asOf: d('2026-11-24'),
+        redemptions: [{ benefitId: 'monthly-credit', periodStart: d('2026-11-01'), amount: 1500 }],
+      }),
+    )!
+    const november = ledger.rows.find((row) => row.period.periodStart === '2026-11-01')!
+    expect(november.captured).toBe(1500)
+    expect(ledger.orphanedRedemptions.count).toBe(0)
+  })
+})

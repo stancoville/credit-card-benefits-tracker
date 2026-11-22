@@ -269,72 +269,126 @@ export function FeeRecoveryPanel({ cards }: { cards: readonly CardSummary[] }) {
 }
 
 /** Benefits grouped by period end, soonest first (SPEC §6). */
+/**
+ * A collapsible page section. Native `<details>`, so it works without JavaScript, keeps
+ * keyboard and screen-reader behaviour for free, and has no animation to honour
+ * `prefers-reduced-motion` for.
+ */
+export function CollapsibleSection({
+  title,
+  meta,
+  defaultOpen = true,
+  children,
+}: {
+  title: string
+  meta?: React.ReactNode
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <details open={defaultOpen} className="group/section">
+      <summary className="disclosure mb-3 flex cursor-pointer items-baseline justify-between gap-3">
+        <span className="text-muted flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
+          <Chevron className="group-open/section:rotate-0 -rotate-90" />
+          {title}
+        </span>
+        {meta ? <span className="text-muted text-xs">{meta}</span> : null}
+      </summary>
+      {children}
+    </details>
+  )
+}
+
+function Chevron({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      className={`h-3.5 w-3.5 shrink-0 ${className}`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 6l4 4 4-4" />
+    </svg>
+  )
+}
+
 export function DeadlineGroups({
   groups,
   asOf,
+  defaultOpen = true,
 }: {
   groups: readonly DeadlineGroup[]
   asOf: string
+  /** Whether each date group starts expanded. Later deadlines start as one-line summaries. */
+  defaultOpen?: boolean
 }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {groups.map((group) => (
         <Panel key={group.periodEnd}>
-          <header className="border-hairline flex items-baseline justify-between border-b px-4 py-2.5">
-            <h3 className="text-sm font-medium">
-              <Figure>{formatDate(group.periodEnd, { withYear: false })}</Figure>
-              <span className="text-muted ml-2 text-xs font-normal">
-                {formatDaysLeft(group.daysLeft)}
+          <details open={defaultOpen} className="group/deadline">
+            <summary className="disclosure border-hairline group-open/deadline:border-b flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5">
+              <span className="flex items-baseline gap-2 text-sm font-medium">
+                <Chevron className="text-muted group-open/deadline:rotate-0 -rotate-90 self-center" />
+                <Figure>{formatDate(group.periodEnd, { withYear: false })}</Figure>
+                <span className="text-muted text-xs font-normal">
+                  {formatDaysLeft(group.daysLeft)} · {group.rows.length}{' '}
+                  {group.rows.length === 1 ? 'credit' : 'credits'}
+                </span>
               </span>
-            </h3>
-            <p className="text-sm font-medium">
-              <Money cents={group.total} />
-            </p>
-          </header>
+              <span className="text-sm font-medium">
+                <Money cents={group.total} />
+              </span>
+            </summary>
 
-          <ul className="divide-hairline divide-y">
-            {group.rows.map((row) => (
-              <li
-                key={`${row.cardId}-${row.benefitId}-${row.period.periodStart}`}
-                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{row.benefitName}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <CardChip label={row.cardLabel} initial={row.ownerInitial} />
-                    {row.merchantScope ? (
-                      <span className="text-muted truncate text-xs">{row.merchantScope}</span>
-                    ) : null}
-                    {row.needsEnrollment ? (
-                      <span className="bg-amber/20 text-ink border-amber rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase">
-                        Not enrolled
-                      </span>
-                    ) : null}
+            <ul className="divide-hairline divide-y">
+              {group.rows.map((row) => (
+                <li
+                  key={`${row.cardId}-${row.benefitId}-${row.period.periodStart}`}
+                  className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{row.benefitName}</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <CardChip label={row.cardLabel} initial={row.ownerInitial} />
+                      {row.merchantScope ? (
+                        <span className="text-muted truncate text-xs">{row.merchantScope}</span>
+                      ) : null}
+                      {row.needsEnrollment ? (
+                        <span className="bg-amber/20 text-ink border-amber rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase">
+                          Not enrolled
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex shrink-0 items-center gap-3">
-                  <p className="text-right text-sm">
-                    <Money cents={row.remaining} className="font-medium" />
-                    {row.captured > 0 ? (
-                      <span className="text-muted block text-xs">
-                        of <Money cents={row.maxValue} /> left
-                      </span>
-                    ) : null}
-                  </p>
-                  <BenefitRowActions
-                    cardId={row.cardId}
-                    benefitId={row.benefitId}
-                    benefitName={row.benefitName}
-                    remaining={row.remaining}
-                    needsEnrollment={row.needsEnrollment}
-                    asOf={asOf}
-                    isEstimated={row.isEstimated}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <p className="text-right text-sm">
+                      <Money cents={row.remaining} className="font-medium" />
+                      {row.captured > 0 ? (
+                        <span className="text-muted block text-xs">
+                          of <Money cents={row.maxValue} /> left
+                        </span>
+                      ) : null}
+                    </p>
+                    <BenefitRowActions
+                      cardId={row.cardId}
+                      benefitId={row.benefitId}
+                      benefitName={row.benefitName}
+                      remaining={row.remaining}
+                      needsEnrollment={row.needsEnrollment}
+                      asOf={asOf}
+                      isEstimated={row.isEstimated}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </details>
         </Panel>
       ))}
     </div>

@@ -471,3 +471,27 @@ describe('§4.6 estimated benefits in the deadline list', () => {
     expect(model.deadlineGroups.flatMap((group) => group.rows)).toEqual([])
   })
 })
+
+describe('later deadlines — beyond the 30-day window', () => {
+  const quarterly = benefit({ id: 'quarterly-credit', name: 'Quarterly credit', resetType: 'quarterly' })
+
+  it('shows each benefit once, at its current deadline, with nothing not yet started', () => {
+    // asOf 2026-07-26: the July monthly period is at risk (5 days); Q3 ends Sep 30 (66 days).
+    const model = buildDashboard(input({ cards: [card({ benefits: [benefit(), quarterly] })] }))
+    expect(model.deadlineGroups.map((group) => group.periodEnd)).toEqual(['2026-07-31'])
+    expect(model.laterGroups.map((group) => group.periodEnd)).toEqual(['2026-09-30'])
+    expect(model.laterGroups[0]!.rows.map((row) => row.benefitId)).toEqual(['quarterly-credit'])
+  })
+
+  it('leaves out a later period that is already fully used', () => {
+    const model = buildDashboard(
+      input({
+        cards: [card({ benefits: [quarterly] })],
+        redemptions: [
+          { userCardId: 'card-1', benefitId: 'quarterly-credit', periodStart: d('2026-07-01'), amount: 1500 },
+        ],
+      }),
+    )
+    expect(model.laterGroups).toEqual([])
+  })
+})

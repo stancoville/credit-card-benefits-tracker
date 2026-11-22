@@ -142,6 +142,13 @@ export interface DashboardModel {
   readonly totalAnnualFees: number
   readonly cliffStrip: readonly CliffMonth[]
   readonly deadlineGroups: readonly DeadlineGroup[]
+  /**
+   * Deadlines beyond the 30-day window: each benefit's *current* period only, so a monthly
+   * credit appears once (at month end) rather than once per future month, while quarterly,
+   * twice-a-year, and annual credits show their upcoming deadline. Periods that haven't
+   * started yet are left to the cliff strip.
+   */
+  readonly laterGroups: readonly DeadlineGroup[]
   readonly cards: readonly CardSummary[]
   readonly orphanedRedemptions: { readonly count: number; readonly amount: number }
   /**
@@ -435,6 +442,9 @@ export function buildDashboard(input: DashboardInput): DashboardModel {
       .reduce((sum, card) => sum + card.annualFee, 0),
     cliffStrip: buildCliffStrip(rows, asOf),
     deadlineGroups: groups,
+    laterGroups: groupByDeadline(
+      rows.filter((row) => !row.isAtRisk && row.period.periodStart <= asOf),
+    ),
     cards: cardSummaries,
     orphanedRedemptions: { count: orphanCount, amount: orphanAmount },
     unlockable: unlockable.sort((a, b) => b.value - a.value),

@@ -17,6 +17,7 @@ import {
 import { NeedsDatabase } from '@/components/needs-database'
 import {
   CliffStrip,
+  CollapsibleSection,
   FeeRecoveryPanel,
   DeadlineGroups,
   Hero,
@@ -24,7 +25,7 @@ import {
   RepeatablePanel,
   UnlockablePanel,
 } from '@/components/dashboard-parts'
-import { EmptyState, Figure, Money, SectionHeading } from '@/components/primitives'
+import { EmptyState, Figure, Money } from '@/components/primitives'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,8 +76,14 @@ export default async function DashboardPage() {
 
       <CliffStrip months={model.cliffStrip} />
 
-      <section>
-        <SectionHeading>Deadlines</SectionHeading>
+      <CollapsibleSection
+        title="Next 30 days"
+        meta={
+          model.deadlineGroups.length > 0 ? (
+            <Money cents={model.valueAtRisk} className="text-ink font-medium" />
+          ) : null
+        }
+      >
         {model.deadlineGroups.length === 0 ? (
           <EmptyState title="Nothing expires in the next 30 days.">
             <p>
@@ -90,7 +97,24 @@ export default async function DashboardPage() {
         ) : (
           <DeadlineGroups groups={model.deadlineGroups} asOf={model.asOf} />
         )}
-      </section>
+      </CollapsibleSection>
+
+      {model.laterGroups.length > 0 ? (
+        <CollapsibleSection
+          title="Later"
+          meta={
+            <>
+              Quarter, half-year, and annual deadlines ·{' '}
+              <Money
+                cents={model.laterGroups.reduce((sum, group) => sum + group.total, 0)}
+                className="text-ink font-medium"
+              />
+            </>
+          }
+        >
+          <DeadlineGroups groups={model.laterGroups} asOf={model.asOf} defaultOpen={false} />
+        </CollapsibleSection>
+      ) : null}
 
       <UnlockablePanel items={model.unlockable} />
 
@@ -103,8 +127,7 @@ export default async function DashboardPage() {
           {model.orphanedRedemptions.count === 1 ? '' : 's'}{' '}
           {model.orphanedRedemptions.count === 1 ? 'does' : 'do'} not line up with any current
           period, so {model.orphanedRedemptions.count === 1 ? 'it is' : 'they are'} not counted
-          above. This usually means a card&rsquo;s open date was
-          edited after the fact.
+          above. This usually means a card&rsquo;s open date was edited after the fact.
         </p>
       ) : null}
 

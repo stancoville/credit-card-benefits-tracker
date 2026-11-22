@@ -45,9 +45,9 @@ The catalog is the open-source asset. No user data ever ships in the repo.
 
 | | Production | Demo |
 |---|---|---|
-| Domain | `cards.stancoville.com` | `demo.cards.stancoville.com` |
+| Domain | Owner's production subdomain (kept out of the repo) | Its `demo.` sibling |
 | Neon | `main` branch | `demo` branch |
-| Gate | Vercel Deployment Protection (password) | Open |
+| Gate | Household PIN (§10) | Open |
 | Data | Real household | Seeded fake household |
 | Reset | Never | Nightly cron: truncate + reseed |
 
@@ -55,6 +55,16 @@ Preview deployments point at the `demo` branch. Real data must never appear in a
 preview build.
 
 `DEMO_MODE=true` shows a persistent banner and disables anything destructive.
+
+_Amended 2026-11-22: the production gate was Vercel Deployment Protection. Its password
+option needs a paid add-on and its free tier doesn't cover a production custom domain, so
+production is gated by a shared household PIN in the app instead (§10). The real domain
+was also removed from this file: the repo is public, and a hostname here is an invitation._
+
+Every deployment also sends `X-Robots-Tag: noindex, nofollow`, a `noindex` meta tag, and a
+`robots.txt` that disallows everything. Those are requests to well-behaved crawlers, not
+protection — the hostname is public the moment it gets a TLS certificate (certificate
+transparency logs). The PIN is the protection.
 
 ---
 
@@ -171,6 +181,19 @@ written before it existed is not.
 
 **There is no `benefit_periods` table.** Periods are computed. This is the single most
 important structural decision in the app — see §5.
+
+### 3.3 Gate table
+
+```
+unlock_attempts                  -- household PIN submissions, for attempt limits (§10)
+  id            uuid pk
+  ip            text
+  succeeded     boolean
+  attempted_at  timestamptz        -- a real instant; pruned after 24 hours
+  index (attempted_at), index (ip, attempted_at)
+```
+
+Not tied to a household: an attempt happens before anyone is known.
 
 ---
 
@@ -626,7 +649,8 @@ Venture X, the premium Hilton and Marriott cards, Bilt, and US Bank Altitude Res
 6. ~~Mark used / enroll flows~~ — done 2026-07-26
 7. ~~Cards lens + drill-in~~ — done 2026-07-26
 8. Demo mode, seed script, nightly reset cron
-9. Password gate, subdomains, DNS
+9. Household PIN gate — done 2026-11-22. Production subdomain — done 2026-11-22.
+   Demo subdomain waits on step 8.
 
 ---
 
@@ -642,11 +666,29 @@ _All five resolved 2026-07-26._
       is preserved: the primary action commits the full remaining amount.
 - [x] **`forfeited` needs no override.** Backdated true-ups cover the real case, and they
       keep the figure derived from a dated fact instead of an opinion. See §4.3.
-- [x] **No auth in v1, and none planned for this deployment.** Cards attach to `users` rows
-      so value can be attributed per person; that is the only reason `users` exists.
-      Access control is Vercel Deployment Protection on production (§2), not application
-      code. Self-hosters add their own. `users.email` is the only personal data in the
+- [x] **No accounts in v1; one shared household PIN gates production.** Cards attach to
+      `users` rows so value can be attributed per person; that is the only reason `users`
+      exists, and nobody logs in as one. `users.email` is the only personal data in the
       schema and lives in Neon only — never the repo (§1, hard rule 4).
+
+      _Amended 2026-11-22: this previously said access control was Vercel Deployment
+      Protection, not application code. That turned out to need a paid add-on (§2), so the
+      gate moved into the app — kept as small as a gate can be:_
+
+      - **One PIN for the household**, from `HOUSEHOLD_PIN`. Never in the repo.
+      - **A signed cookie, not a session table.** After a correct PIN the browser gets
+        `<expiry>.<HMAC>` keyed by `UNLOCK_SECRET` over the expiry and a hash of the PIN,
+        valid 90 days. Changing the PIN locks out every browser.
+      - **Checked three times:** `proxy.ts` turns locked requests away; every Server Action
+        calls `guardLocked()`; `getHousehold()` calls `requireUnlocked()`, so no household
+        data is read for a locked browser even if Proxy coverage slips.
+      - **Wrong tries are limited**, because a short PIN is otherwise guessable in minutes:
+        5 per address per 15 minutes, and 20 from all addresses per hour, after which the
+        PIN screen pauses for everyone (§3.3, `lib/gate/limit.ts`).
+      - **Fails closed.** A production build missing `HOUSEHOLD_PIN` or `UNLOCK_SECRET`
+        cannot be unlocked at all. `DEMO_MODE=true` turns the gate off; the demo is public.
+      - Self-hosters get the same gate by setting the two variables.
+
 - [x] **`redemptions.source` ships now**, `enum('manual','reminder')` defaulting to
       `manual`. Shipped in migration 0001. See §3.2.
 

@@ -21,6 +21,7 @@ import {
   users,
 } from '@/db/schema'
 import { todayIn } from '@/lib/date/now'
+import { requireUnlocked } from '@/lib/gate/server'
 import type { PlainDate } from '@/lib/date/plain-date'
 import type { DashboardCard, DashboardInput } from './dashboard'
 
@@ -64,6 +65,9 @@ export function isDatabaseConfigured(): boolean {
 
 /** The household, or null on a fresh install (which sends the user to /setup). */
 export async function getHousehold(): Promise<Household | null> {
+  // Every page and action loads the household first, so this is the backstop behind
+  // proxy.ts: no household data leaves the database for a locked browser (SPEC §10).
+  await requireUnlocked()
   const rows = await getDb()
     .select({ id: households.id, name: households.name, timezone: households.timezone })
     .from(households)

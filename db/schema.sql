@@ -103,6 +103,13 @@ CREATE TABLE "redemptions" (
 	CONSTRAINT "redemptions_amount_non_negative" CHECK ("redemptions"."amount" >= 0)
 );
 
+CREATE TABLE "unlock_attempts" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"ip" text NOT NULL,
+	"succeeded" boolean NOT NULL,
+	"attempted_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+
 CREATE TABLE "user_cards" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"household_id" uuid NOT NULL,
@@ -144,6 +151,8 @@ CREATE INDEX "benefits_product_idx" ON "benefits" USING btree ("product_id");
 CREATE INDEX "card_products_issuer_idx" ON "card_products" USING btree ("issuer_id");
 CREATE INDEX "enrollments_benefit_idx" ON "enrollments" USING btree ("benefit_id");
 CREATE INDEX "redemptions_card_benefit_period_idx" ON "redemptions" USING btree ("user_card_id","benefit_id","period_start");
+CREATE INDEX "unlock_attempts_attempted_at_idx" ON "unlock_attempts" USING btree ("attempted_at");
+CREATE INDEX "unlock_attempts_ip_attempted_at_idx" ON "unlock_attempts" USING btree ("ip","attempted_at");
 CREATE INDEX "user_cards_household_idx" ON "user_cards" USING btree ("household_id");
 CREATE INDEX "user_cards_product_idx" ON "user_cards" USING btree ("product_id");
 CREATE INDEX "user_cards_owner_idx" ON "user_cards" USING btree ("owner_user_id");

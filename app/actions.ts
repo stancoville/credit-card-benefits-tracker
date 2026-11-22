@@ -30,6 +30,7 @@ import { InvalidAmountError, formatCents, parseDollarsToCents } from '@/lib/mone
 import { benefitAppliesToCard } from '@/lib/ledger'
 import { periodFor } from '@/lib/periods'
 import { asOfFor, getCard, getHousehold } from '@/lib/app/queries'
+import { guardLocked } from '@/lib/gate/server'
 
 export type ActionResult = { ok: true; message: string } | { ok: false; error: string }
 
@@ -58,6 +59,8 @@ export async function setupHousehold(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -109,6 +112,8 @@ export async function addCard(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -168,6 +173,8 @@ export async function closeCard(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -195,6 +202,8 @@ export async function reopenCard(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -224,6 +233,8 @@ export async function deleteCard(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -261,6 +272,8 @@ export async function markUsed(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -387,6 +400,8 @@ export async function enrollBenefit(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 
@@ -439,6 +454,8 @@ export async function setExclusion(
   _previous: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
   const demo = guardDemo()
   if (demo) return demo
 

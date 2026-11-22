@@ -20,6 +20,7 @@ Server Actions for mutations. No separate API layer in v1.
 /db/migrations       generated; never hand-edited
 /lib/catalog         catalog Zod schema, loader, and catalog→row mapping
 /lib/date            PlainDate (pure) and todayIn (the only clock reader)
+/lib/gate            household PIN gate: token, config, attempt limits
 /lib/periods         period engine (pure, no I/O)
 /lib/ledger          potential/captured/forfeited/available math
 /scripts/seed.ts     idempotent catalog seeding

@@ -33,7 +33,7 @@ same day, should be visible without reading.
 
 - No bank or transaction import. Every redemption is entered by hand.
 - No points valuation, award search, or transfer partners.
-- No auth in v1. Access control is your deployment's job — see below.
+- No accounts. One shared household PIN keeps it private — see below.
 
 ---
 
@@ -65,10 +65,21 @@ drifted, so it is always current. Never edit it by hand.
 
 ### A note on access
 
-There is no login. The reference deployment sits behind Vercel Deployment Protection; if
-you host this yourself, put it behind something. The only personal data the schema holds is
-a display name and an email address per household member, and it lives in your database —
-never in this repo.
+There are no accounts. Instead, one shared household PIN gates every page and action. Set two
+environment variables:
+
+| Variable | What it is |
+|---|---|
+| `HOUSEHOLD_PIN` | The PIN you and your household will type. At least 4 characters; 6+ digits is better. |
+| `UNLOCK_SECRET` | A long random string that signs the unlock cookie. `openssl rand -hex 32` makes one. |
+
+A browser stays unlocked for 90 days, and changing the PIN locks out every browser.
+Wrong tries are limited (5 per address per 15 minutes, 20 overall per hour). A production
+build with either variable missing can't be unlocked at all, so a forgotten setting fails
+closed rather than open. Locally, with neither set, there is no gate.
+
+The only personal data the schema holds is a display name and an email address per
+household member, and it lives in your database — never in this repo.
 
 ---
 

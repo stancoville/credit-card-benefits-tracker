@@ -444,6 +444,31 @@ export const redemptionsRelations = relations(redemptions, ({ one }) => ({
 }))
 
 /* -------------------------------------------------------------------------- */
+/* 3.3 Gate — the household PIN's attempt log (SPEC §10)                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One row per PIN submission, so wrong guesses can be limited across serverless instances
+ * (lib/gate/limit.ts). Not tied to a household: attempts happen before anyone is known.
+ * Rows older than a day are pruned on each attempt; only the last hour is ever read.
+ */
+export const unlockAttempts = pgTable(
+  'unlock_attempts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ip: text('ip').notNull(),
+    succeeded: boolean('succeeded').notNull(),
+    attemptedAt: timestamp('attempted_at', { withTimezone: true, mode: 'string' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('unlock_attempts_attempted_at_idx').on(table.attemptedAt),
+    index('unlock_attempts_ip_attempted_at_idx').on(table.ip, table.attemptedAt),
+  ],
+)
+
+/* -------------------------------------------------------------------------- */
 /* Inferred row types                                                         */
 /* -------------------------------------------------------------------------- */
 

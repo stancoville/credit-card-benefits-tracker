@@ -25,6 +25,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'Benefits tracker',
   description: 'What money is about to evaporate.',
+  robots: { index: false, follow: false },
 }
 
 const DEMO_MODE = process.env.DEMO_MODE === 'true'

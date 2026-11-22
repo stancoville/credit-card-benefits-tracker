@@ -391,6 +391,58 @@ export async function markUsed(
   return { ok: true, message: `Marked used — ${formatCents(amount)}.` }
 }
 
+/**
+ * Undo "Mark used" for one period: removes every redemption filed under it, so the period
+ * goes back to unused (open) or forfeited (closed). This is how a person corrects the
+ * period grid on the card page when they tapped the wrong month.
+ */
+export async function markUnused(
+  _previous: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const locked = await guardLocked()
+  if (locked) return locked
+  const demo = guardDemo()
+  if (demo) return demo
+
+  const household = await getHousehold()
+  if (!household) return { ok: false, error: 'Set up your household first.' }
+
+  const cardId = text(formData, 'cardId')
+  const benefitId = text(formData, 'benefitId')
+  const periodStart = date(formData, 'periodStart')
+  if (!periodStart) return { ok: false, error: 'That period is not valid. Reload and try again.' }
+
+  const card = await getCard(household.id, cardId)
+  if (!card) return { ok: false, error: 'That card is not in this household.' }
+  const benefit = card.product.benefits.find((candidate) => candidate.id === benefitId)
+  if (!benefit) return { ok: false, error: 'That benefit is not on this card.' }
+
+  // The key must be one the engine would compute, not just any date the client sent.
+  const period = periodFor(benefit, card.openedOn, periodStart, {
+    tz: household.timezone,
+    cardClosedOn: card.closedOn ?? undefined,
+  })
+  if (!period || period.periodStart !== periodStart) {
+    return { ok: false, error: 'That period is not valid. Reload and try again.' }
+  }
+
+  await getDb()
+    .delete(redemptions)
+    .where(
+      and(
+        eq(redemptions.userCardId, cardId),
+        eq(redemptions.benefitId, benefitId),
+        eq(redemptions.periodStart, periodStart),
+      ),
+    )
+
+  revalidatePath('/')
+  revalidatePath('/cards')
+  revalidatePath(`/cards/${cardId}`)
+  return { ok: true, message: 'Marked unused.' }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Enroll                                                                     */
 /* -------------------------------------------------------------------------- */

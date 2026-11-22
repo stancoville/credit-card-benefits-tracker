@@ -553,6 +553,14 @@ Tile per card: capture-rate ring vs. elapsed pace, card year end, count and valu
 expiring in 30 days. Click → drill-in with the four-way split, excluded, fee recovery,
 and the perk list.
 
+_Amended 2026-11-22:_ the drill-in groups credits by cadence (monthly, quarterly, twice a
+year, once a year, every few years, one-time), each with a plain-language reset line
+("Resets Jan 1 and Jul 1"). Monthly, quarterly, and twice-a-year credits also show a
+**period grid** for the current card year — the same periods the totals count (§4.1). Tap a
+started period to mark it used (a backdated redemption, §4.3); tap a used one to mark it
+unused, which deletes that period's redemptions. People don't open the app every month,
+and this is where they catch up.
+
 ### Interaction rules
 
 - **Mark used must be one gesture.** Default to the full remaining amount; long-press

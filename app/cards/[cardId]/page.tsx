@@ -235,6 +235,11 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
                                         </>
                                       ) : null}
                                       <Money cents={benefit.maxValue ?? 0} /> ·{' '}
+                                      {benefit.perUseCap !== null ? (
+                                        <>
+                                          up to <Money cents={benefit.perUseCap} /> per use ·{' '}
+                                        </>
+                                      ) : null}
                                     </>
                                   )}
                                   {resetSummary(benefit, card.openedOn)}
@@ -288,6 +293,7 @@ export default async function CardPage({ params }: { params: Promise<{ cardId: s
                                     needsEnrollment={needsEnrollment}
                                     asOf={asOf}
                                     isEstimated={estimated}
+                                    perUseCap={benefit.perUseCap}
                                   />
                                 ) : null}
                                 {period && captured > 0 && !excluded && !grid ? (

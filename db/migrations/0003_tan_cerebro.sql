@@ -1,0 +1,2 @@
+ALTER TABLE "benefits" ADD COLUMN "per_use_cap" integer;--> statement-breakpoint
+ALTER TABLE "benefits" ADD CONSTRAINT "benefits_per_use_cap_valid" CHECK ("benefits"."per_use_cap" is null or ("benefits"."benefit_type" = 'credit' and "benefits"."repeatable" = false and "benefits"."per_use_cap" > 0 and "benefits"."per_use_cap" <= "benefits"."max_value"));

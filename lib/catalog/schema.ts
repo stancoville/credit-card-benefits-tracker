@@ -85,6 +85,11 @@ const creditBenefit = z.strictObject({
    * within its period (SPEC §4.8).
    */
   repeatable: z.boolean().default(false),
+  /**
+   * The most one redemption can pay inside the period allowance (SPEC §4.9) — e.g. the
+   * Edit credit's $250 per stay within $500 a year. Omit when one use can take it all.
+   */
+  per_use_cap_cents: cents.optional(),
 })
 
 const perkBenefit = z.strictObject({
@@ -141,11 +146,39 @@ function estimateRules(benefit: object, ctx: z.RefinementCtx): void {
   }
 }
 
+/** SPEC §4.9: a per-use cap splits a fixed allowance, so it must fit inside one. */
+function perUseCapRules(benefit: object, ctx: z.RefinementCtx): void {
+  const {
+    per_use_cap_cents: cap,
+    max_value_cents: max,
+    repeatable,
+  } = benefit as {
+    per_use_cap_cents?: number | undefined
+    max_value_cents?: number | null | undefined
+    repeatable?: boolean | undefined
+  }
+  if (cap === undefined) return
+  if (repeatable === true) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['per_use_cap_cents'],
+      message: 'a repeatable benefit already treats max_value_cents as its per-use cap',
+    })
+  } else if (cap <= 0 || max == null || cap > max) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['per_use_cap_cents'],
+      message: 'per_use_cap_cents must be above zero and no more than max_value_cents',
+    })
+  }
+}
+
 export const benefitEntrySchema = z
   .discriminatedUnion('benefit_type', [creditBenefit, perkBenefit])
   .superRefine((benefit, ctx) => {
     orderedWindow(benefit, ctx)
     estimateRules(benefit, ctx)
+    perUseCapRules(benefit, ctx)
   })
 
 export const productEntrySchema = z

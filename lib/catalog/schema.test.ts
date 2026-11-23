@@ -319,6 +319,35 @@ describe('§4.6 estimated values must carry their reasoning', () => {
   })
 })
 
+describe('§4.9 a per-use cap must fit inside the allowance', () => {
+  it('accepts a cap below the allowance', () => {
+    const input = catalogFile({
+      benefits: [creditBenefit({ max_value_cents: 50000, per_use_cap_cents: 25000 })],
+    })
+    expect(catalogFileSchema.safeParse(input).success).toBe(true)
+  })
+
+  it('rejects a cap above the allowance, which could never bind', () => {
+    const input = catalogFile({
+      benefits: [creditBenefit({ max_value_cents: 50000, per_use_cap_cents: 60000 })],
+    })
+    expect(firstErrorPath(input)).toBe('benefits.0.per_use_cap_cents')
+  })
+
+  it('rejects a cap on a repeatable benefit, whose max is already per use', () => {
+    const input = catalogFile({
+      benefits: [creditBenefit({ repeatable: true, per_use_cap_cents: 1000 })],
+    })
+    expect(firstError(input)).toMatch(/already treats max_value_cents/)
+  })
+
+  it('rejects a cap on a perk', () => {
+    const perk = creditBenefit({ benefit_type: 'perk', per_use_cap_cents: 1000 })
+    delete perk.max_value_cents
+    expect(catalogFileSchema.safeParse(catalogFile({ benefits: [perk] })).success).toBe(false)
+  })
+})
+
 describe('issuer account-opened hints', () => {
   it('accepts an issuer with a hint', () => {
     const result = issuersFileSchema.safeParse([

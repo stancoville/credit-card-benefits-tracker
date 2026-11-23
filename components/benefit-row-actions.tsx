@@ -27,6 +27,7 @@ export function BenefitRowActions({
   needsEnrollment,
   asOf,
   isEstimated = false,
+  perUseCap = null,
 }: {
   cardId: string
   benefitId: string
@@ -40,7 +41,13 @@ export function BenefitRowActions({
    * is then the catalog's estimate, shown as a hint, never as a cap.
    */
   isEstimated?: boolean
+  /**
+   * SPEC §4.9: the most one use pays inside the allowance (the Edit credit's $250 per stay
+   * of $500 a year). "Mark used" then records one use, not everything left.
+   */
+  perUseCap?: number | null
 }) {
+  const oneUse = perUseCap === null ? remaining : Math.min(remaining, perUseCap)
   const [markState, markAction, markPending] = useActionState<ActionResult | null, FormData>(
     markUsed,
     null,
@@ -152,7 +159,8 @@ export function BenefitRowActions({
         <form action={markAction}>
           <input type="hidden" name="cardId" value={cardId} />
           <input type="hidden" name="benefitId" value={benefitId} />
-          {/* No amount field: the action defaults to the full remaining value. */}
+          {/* No amount field: the action defaults to one use — the remaining value, or the
+              per-use cap when that is smaller. */}
           <button
             type="submit"
             disabled={pending}
@@ -184,6 +192,7 @@ export function BenefitRowActions({
 
           <p className="text-muted text-xs">
             {benefitName} — {formatCents(remaining)} left
+            {oneUse < remaining ? `, up to ${formatCents(oneUse)} per use` : ''}
           </p>
 
           <label className="block text-xs">
@@ -191,7 +200,7 @@ export function BenefitRowActions({
             <input
               name="amount"
               inputMode="decimal"
-              placeholder={formatCents(remaining)}
+              placeholder={formatCents(oneUse)}
               className="figure border-hairline mt-1 w-full rounded border px-2 py-1 text-sm"
             />
           </label>

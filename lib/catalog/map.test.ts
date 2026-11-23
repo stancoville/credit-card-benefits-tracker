@@ -102,6 +102,7 @@ describe('toBenefitRow', () => {
       estimateBasis: null,
       unlockSpend: null,
       repeatable: false,
+      perUseCap: null,
       resetType: 'monthly',
       resetInterval: 1,
       resetAnchor: 'calendar',
@@ -211,5 +212,13 @@ describe('§4.8 repeatable benefits carry their per-use flag through', () => {
 
   it('defaults to false', () => {
     expect(toBenefitRow(parse(base).benefits[0]!, PRODUCT_ID).repeatable).toBe(false)
+  })
+})
+
+describe('§4.9 per-use caps carry through', () => {
+  it('maps per_use_cap_cents onto the row', () => {
+    const edit = { ...base.benefits[0]!, max_value_cents: 50000, per_use_cap_cents: 25000 }
+    const file = parse({ ...base, benefits: [edit] })
+    expect(toBenefitRow(file.benefits[0]!, PRODUCT_ID).perUseCap).toBe(25000)
   })
 })

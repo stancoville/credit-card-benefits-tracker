@@ -176,6 +176,15 @@ export const benefits = pgTable(
      */
     repeatable: boolean('repeatable').notNull().default(false),
     /**
+     * Integer cents. The most a single redemption can pay, inside a period allowance that
+     * stays `max_value` (SPEC §4.9). Null means one redemption may take the whole allowance.
+     *
+     * The Sapphire Reserve's Edit credit is $500 a calendar year, but each qualifying stay
+     * pays at most $250 — so it takes two stays to use it all. Unlike `repeatable`, the
+     * allowance is real and the unused part still forfeits.
+     */
+    perUseCap: integer('per_use_cap'),
+    /**
      * Where an estimated value came from — required when `value_mode = 'estimated'`, and
      * shown wherever the estimate is used. An estimate with no stated basis is a guess.
      */
@@ -219,6 +228,12 @@ export const benefits = pgTable(
     check(
       'benefits_repeatable_must_be_credit',
       sql`${table.repeatable} = false or ${table.benefitType} = 'credit'`,
+    ),
+    // §4.9: a per-use cap splits a fixed allowance. A repeatable benefit already treats
+    // max_value as its per-use cap, and a cap above the allowance would never bind.
+    check(
+      'benefits_per_use_cap_valid',
+      sql`${table.perUseCap} is null or (${table.benefitType} = 'credit' and ${table.repeatable} = false and ${table.perUseCap} > 0 and ${table.perUseCap} <= ${table.maxValue})`,
     ),
     check(
       'benefits_unlock_spend_must_be_credit',

@@ -45,6 +45,8 @@ export function toBenefitRow(benefit: CatalogBenefit, productId: string): NewBen
     unlockSpend:
       benefit.benefit_type === 'credit' ? (benefit.unlock_spend_cents ?? null) : null,
     repeatable: benefit.benefit_type === 'credit' ? benefit.repeatable : false,
+    perUseCap:
+      benefit.benefit_type === 'credit' ? (benefit.per_use_cap_cents ?? null) : null,
     resetType: benefit.reset_type,
     resetInterval: benefit.reset_interval,
     resetAnchor: benefit.reset_anchor,

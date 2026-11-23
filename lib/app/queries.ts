@@ -179,6 +179,7 @@ export async function getDashboardInput(household: Household): Promise<Dashboard
       estimateBasis: benefit.estimateBasis,
       unlockSpend: benefit.unlockSpend,
       repeatable: benefit.repeatable,
+      perUseCap: benefit.perUseCap,
       resetType: benefit.resetType,
       resetInterval: benefit.resetInterval,
       resetAnchor: benefit.resetAnchor,

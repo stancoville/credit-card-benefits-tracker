@@ -105,6 +105,7 @@ async function seed(): Promise<void> {
             estimateBasis: row.estimateBasis ?? null,
             unlockSpend: row.unlockSpend ?? null,
             repeatable: row.repeatable ?? false,
+            perUseCap: row.perUseCap ?? null,
             resetType: row.resetType,
             resetInterval: row.resetInterval,
             resetAnchor: row.resetAnchor,

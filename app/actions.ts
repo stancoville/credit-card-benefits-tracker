@@ -366,7 +366,12 @@ export async function markUsed(
     return { ok: false, error: 'This period is already fully used.' }
   }
 
-  let amount = remaining
+  /**
+   * SPEC §4.9: some allowances pay in pieces — the Edit credit is $500 a year but at most
+   * $250 per stay. A bare "Mark used" records one use, never more than the cap.
+   */
+  const perUseCap = benefit.perUseCap ?? null
+  let amount = perUseCap === null ? remaining : Math.min(remaining, perUseCap)
   if (amountInput !== '') {
     try {
       amount = parseDollarsToCents(amountInput)
@@ -383,6 +388,12 @@ export async function markUsed(
   if (amount <= 0) return { ok: false, error: 'Enter an amount greater than zero.' }
   // §4.3: captured can never exceed max_value, or `available` goes negative. Estimated
   // benefits are exempt: the realized value replaces the estimate in `potential` (§4.6).
+  if (perUseCap !== null && amount > perUseCap) {
+    return {
+      ok: false,
+      error: `Each use pays at most ${formatCents(perUseCap)}. Record each one separately.`,
+    }
+  }
   if (!estimated && amount > remaining) {
     return {
       ok: false,

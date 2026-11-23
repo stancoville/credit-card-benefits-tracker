@@ -108,6 +108,7 @@ benefits
   name               text
   benefit_type       enum('credit','perk')
   max_value          integer null    -- cents; null for perks
+  per_use_cap        integer null    -- cents; most one use pays inside max_value (§4.9)
   reset_type         enum(...)       -- see §5.1
   reset_interval     integer         -- n periods, default 1
   reset_anchor       enum('calendar','card_open')
@@ -366,6 +367,19 @@ then forfeit against it — reporting a loss on a benefit that cannot be lost. S
 
 The period on such a benefit is a **reporting window** — it groups uses for "what did this
 card return this year" — not an issuer limit.
+
+### 4.9 Some allowances pay out in pieces
+
+The opposite case to §4.8: a real period allowance that no single use can fill. The
+Sapphire Reserve's Edit credit is $500 a calendar year, but each qualifying stay pays at
+most $250 — using it all takes two stays.
+
+`benefits.per_use_cap` holds that limit. The ledger is unchanged: `max_value` is still the
+allowance, and whatever is unused at period end still forfeits. Only the write path
+differs: a redemption above the cap is refused, and a bare "Mark used" records one use
+(the cap, or what is left if that is less) rather than the whole allowance.
+
+It never combines with `repeatable`, whose `max_value` is already per use.
 
 ### 4.5 Timezone is per household, not per user
 
